@@ -153,3 +153,23 @@ jobs:
   packages:
     name: Packages
     uses: ./.github/workflows/build.yml
+
+  all-checks:
+    # One name for the branch rule on main to require. It is green only if every job above
+    # is; "always()" matters, because a job that is skipped would count as passed.
+    name: All checks passed
+    if: always()
+    needs: [lint, test, test-oldest, test-shell, test-source, packages]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              echo "::error::a job did not succeed ($result)"
+              exit 1
+            fi
+          done

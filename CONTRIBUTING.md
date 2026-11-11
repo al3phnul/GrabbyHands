@@ -84,8 +84,9 @@ sh build-aux/update-screenshots.sh         # rewrites docs/screenshots/
 ## Pull requests
 
 - Work on a branch; keep each pull request focused on one change.
-- `main` must always work. CI has to pass: lint, tests, validators, the package builds and
-  the install tests.
+- `main` must always work, and GitHub enforces it: a commit only gets onto `main` once CI's
+  **All checks passed** job is green for it (lint, tests, validators, the package builds and
+  the install tests).
 - Add a line under **Unreleased** in [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 - New source files start with the SPDX header the others use:
   `# SPDX-License-Identifier: GPL-3.0-or-later`.
@@ -145,7 +146,8 @@ formats, text recognition and QR reading.
    add a `<release>` with the same version and date to
    `data/io.github.al3phnul.GrabbyHands.metainfo.xml.in`.
 3. Run `python3 build-aux/check-repo.py --tag vX.Y.Z`. It has to print `0 problem(s)`.
-4. Commit and push to `main`, and wait for CI to pass.
+4. Commit, push the commit to a branch and get CI green for it (open a pull request, or run
+   the **CI** workflow on the branch by hand), then merge or fast-forward it into `main`.
 5. Optional rehearsal: run the **Release** workflow by hand (Actions → Release → Run workflow).
    It builds and tests everything and leaves the files in the run's `release` artifact, but
    publishes nothing.
