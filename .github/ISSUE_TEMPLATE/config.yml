@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+blank_issues_enabled: false
+contact_links:
+  - name: Help with installing or first-run setup
+    url: https://github.com/al3phnul/GrabbyHands#first-run
+    about: The README covers the Print Screen key, the screenshot permission and the Window Helper.
+  - name: Report a security problem
+    url: https://github.com/al3phnul/GrabbyHands/security/policy
+    about: Please report vulnerabilities privately by email, not as a public issue.

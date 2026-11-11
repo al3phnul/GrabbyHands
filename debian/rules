@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+%:
+	dh $@ --buildsystem=meson
+
+override_dh_auto_configure:
+	dh_auto_configure -- -Dshell_extension=true
+
+# One package for Debian and Ubuntu: xz is understood by every dpkg in use
+# (Ubuntu's default, zstd, is not).
+override_dh_builddeb:
+	dh_builddeb -- -Zxz

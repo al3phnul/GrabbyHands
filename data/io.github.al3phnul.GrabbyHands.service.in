@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[D-BUS Service]
+Name=@APP_ID@
+Exec=@bindir@/grabbyhands --gapplication-service

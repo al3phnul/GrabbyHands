@@ -1,0 +1,66 @@
+Source: grabbyhands
+Section: graphics
+Priority: optional
+Maintainer: al3phnul <38234799+al3phnul@users.noreply.github.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-python3,
+ appstream <!nocheck>,
+ desktop-file-utils,
+ gettext,
+ gtk-update-icon-cache,
+ libglib2.0-bin,
+ meson (>= 1.1.0),
+ python3:any (>= 3.11),
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/al3phnul/GrabbyHands
+Vcs-Browser: https://github.com/al3phnul/GrabbyHands
+Vcs-Git: https://github.com/al3phnul/GrabbyHands.git
+
+Package: grabbyhands
+Architecture: all
+Depends:
+ gir1.2-adw-1 (>= 1.5),
+ gir1.2-gtk-4.0 (>= 4.14),
+ gir1.2-pango-1.0,
+ python3 (>= 3.11),
+ python3-cairo,
+ python3-gi,
+ python3-gi-cairo,
+ python3-pil,
+ xdg-desktop-portal,
+ ${misc:Depends},
+ ${python3:Depends},
+Recommends:
+ python3-zxing-cpp,
+ tesseract-ocr,
+ xdg-desktop-portal-gnome | xdg-desktop-portal-backend,
+Suggests:
+ gnome-shell-extension-prefs,
+Description: Grab, mark up and copy screenshots on GNOME
+ GrabbyHands is a screenshot tool for the GNOME desktop on Wayland. Press
+ Print Screen, drag over what you want, and copy, save, mark up or pin it
+ in one click.
+ .
+  * Region, whole-screen and window capture, with a pixel magnifier and a
+    delay timer
+  * An editor with arrows, shapes, text, callouts, numbered steps, blur,
+    pixelate, black-out, spotlight, magnify, stickers and crop
+  * Copy text out of a screenshot (OCR) and read QR codes and barcodes
+  * Auto-redact emails, phone numbers, card numbers and other personal
+    details before sharing
+  * Identify Color (HEX, RGB, CMYK), pinned screenshots and a capture
+    history
+ .
+ Everything happens on your computer: GrabbyHands has no network access.
+ .
+ Text recognition needs tesseract-ocr and QR reading needs
+ python3-zxing-cpp; both are recommended and installed by default. Without
+ them those two features are hidden and everything else works.
+ .
+ This package also installs the "GrabbyHands Window Helper" GNOME Shell
+ extension, which tells GrabbyHands where windows are so it can capture a
+ single window and, if you ask for it in Settings, makes the screenshot
+ button in GNOME's system menu start GrabbyHands. It is off until you turn
+ it on.

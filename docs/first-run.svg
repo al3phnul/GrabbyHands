@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- First-run steps for the README. 2026 al3phnul and contributors. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="170" viewBox="0 0 860 170" role="img" aria-labelledby="title desc">
+  <title id="title">First run in four steps</title>
+  <desc id="desc">1. Open GrabbyHands and accept its shortcuts. 2. Give it the Print Screen key. 3. Allow screenshots once. 4. Turn on the Window Helper for window capture.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#c053f0"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text { font-family: Cantarell, "Ubuntu Sans", Ubuntu, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+    .card { fill: #f6f5fb; stroke: #d9d5ee; stroke-width: 1.5; }
+    .num { fill: #ffffff; font-size: 18px; font-weight: 700; text-anchor: middle; }
+    .head { fill: #241f4a; font-size: 15px; font-weight: 700; }
+    .body { fill: #4a4666; font-size: 12.5px; }
+    .once { fill: #7255eb; font-size: 11.5px; font-weight: 700; letter-spacing: 0.6px; }
+    .arrow { fill: none; stroke: #b8b0e6; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <g>
+    <rect class="card" x="5" y="10" width="194" height="150" rx="14"/>
+    <circle cx="35" cy="42" r="17" fill="url(#accent)"/>
+    <text class="num" x="35" y="48.5">1</text>
+    <text class="once" x="62" y="46.5">ONCE</text>
+    <text class="head" x="20" y="88">Open GrabbyHands,</text>
+    <text class="head" x="20" y="107">accept its shortcuts</text>
+    <text class="body" x="20" y="130">GNOME 46 and 47: add one</text>
+    <text class="body" x="20" y="146">custom shortcut instead</text>
+  </g>
+  <path class="arrow" d="M205 85 h10 m-5 -5 l5 5 l-5 5"/>
+
+  <g>
+    <rect class="card" x="222" y="10" width="194" height="150" rx="14"/>
+    <circle cx="252" cy="42" r="17" fill="url(#accent)"/>
+    <text class="num" x="252" y="48.5">2</text>
+    <text class="once" x="279" y="46.5">ONCE</text>
+    <text class="head" x="237" y="88">Give it the Print</text>
+    <text class="head" x="237" y="107">Screen key</text>
+    <text class="body" x="237" y="130">One click in Getting Started,</text>
+    <text class="body" x="237" y="146">or in GNOME Settings</text>
+  </g>
+  <path class="arrow" d="M422 85 h10 m-5 -5 l5 5 l-5 5"/>
+
+  <g>
+    <rect class="card" x="439" y="10" width="194" height="150" rx="14"/>
+    <circle cx="469" cy="42" r="17" fill="url(#accent)"/>
+    <text class="num" x="469" y="48.5">3</text>
+    <text class="once" x="496" y="46.5">ONCE</text>
+    <text class="head" x="454" y="88">Allow screenshots</text>
+    <text class="body" x="454" y="111">Click Allow Screenshots,</text>
+    <text class="body" x="454" y="127">then Allow in GNOME's</text>
+    <text class="body" x="454" y="143">dialog</text>
+  </g>
+  <path class="arrow" d="M639 85 h10 m-5 -5 l5 5 l-5 5"/>
+
+  <g>
+    <rect class="card" x="656" y="10" width="199" height="150" rx="14"/>
+    <circle cx="686" cy="42" r="17" fill="url(#accent)"/>
+    <text class="num" x="686" y="48.5">4</text>
+    <text class="once" x="713" y="46.5">OPTIONAL</text>
+    <text class="head" x="671" y="88">Turn on the</text>
+    <text class="head" x="671" y="107">Window Helper</text>
+    <text class="body" x="671" y="130">Log out and in, then enable</text>
+    <text class="body" x="671" y="146">it. For window capture.</text>
+  </g>
+</svg>

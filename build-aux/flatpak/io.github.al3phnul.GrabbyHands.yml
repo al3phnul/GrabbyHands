@@ -1,0 +1,180 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 al3phnul and contributors
+#
+# Flatpak manifest for GrabbyHands.
+#
+# Build and test locally (nothing is installed):
+#   flatpak-builder --force-clean build/flatpak build-aux/flatpak/io.github.al3phnul.GrabbyHands.yml
+#   flatpak-builder --run build/flatpak build-aux/flatpak/io.github.al3phnul.GrabbyHands.yml \
+#       grabbyhands --version
+#
+# The GNOME runtime already has Python, PyGObject, pycairo, GTK and libadwaita. Everything
+# else GrabbyHands needs is built here from pinned upstream sources (see docs/third-party.md).
+app-id: io.github.al3phnul.GrabbyHands
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: grabbyhands
+# The bundle contains more than GrabbyHands itself; say so where app stores show the licence.
+# Each module's licence text is installed under /app/share/licenses.
+appdata-license: GPL-3.0-or-later AND CC-BY-SA-4.0 AND Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT-CMU
+
+finish-args:
+  # Show windows. X11 is only a fallback for sessions without Wayland.
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  # GPU rendering for GTK.
+  - --device=dri
+  # The one folder GrabbyHands writes to by itself: Pictures/GrabbyHands (auto-save).
+  # A different folder picked in Settings, and Save As, go through the file chooser portal.
+  - --filesystem=xdg-pictures/GrabbyHands:create
+  # Window positions from the "GrabbyHands Window Helper" GNOME Shell extension.
+  - --talk-name=io.github.al3phnul.GrabbyHands.Shell
+  # Where the bundled Tesseract finds its language data.
+  - --env=TESSDATA_PREFIX=/app/share/tessdata
+  # Deliberately absent: --share=network (GrabbyHands never goes online), home or host
+  # file access, and session-bus access beyond the helper above. Screenshots, global
+  # shortcuts, start at login, notifications, the Trash and "Show in Folder" all go
+  # through XDG portals, which need no extra permission.
+
+cleanup:
+  - /include
+  - /lib/cmake
+  - /lib/pkgconfig
+  - /share/man
+  - /share/doc
+  - '*.a'
+  - '*.la'
+
+modules:
+  # Build-time only: Pillow's setup.py and the zxing-cpp Python module need pybind11.
+  - name: python3-pybind11
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} --no-build-isolation pybind11
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/33/fd/8762f7ee3e4e4be6d1d846cffb4916dd9bb02b2f800d3603718a0efe494c/pybind11-3.1.0-py3-none-any.whl
+        sha256: b8488090f8acffbcb6b5d6a85571a6827a0a2981ffb75e5a0b27b87c4a6b7dd0
+    cleanup:
+      - '*'
+
+  # Image loading, saving (PNG, JPEG, WebP) and filters.
+  - name: python3-pillow
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --no-index --no-deps --no-build-isolation
+        --prefix=${FLATPAK_DEST} .
+    sources:
+      - type: archive
+        url: https://files.pythonhosted.org/packages/ce/a4/9cc30690a394a8305e8be4c9036aa16d0dfddadd09079860b582f562496d/pillow-13.0.0.tar.gz
+        sha256: cdcd1ba258178f7356d74170c9a81ba4eab6a5d55748bc402a5a2a6fe6be3510
+
+  # QR code and barcode reading (Python module "zxingcpp"). 2.3.0 is the series Debian 13
+  # and Ubuntu 26.04 ship and the one GrabbyHands is tested against.
+  - name: zxing-cpp
+    buildsystem: simple
+    build-commands:
+      - cmake -S . -B _build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_INSTALL_PREFIX=${FLATPAK_DEST}
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+        -DBUILD_SHARED_LIBS=OFF
+        -DZXING_READERS=ON
+        -DZXING_WRITERS=OLD
+        -DZXING_EXAMPLES=OFF
+        -DZXING_PYTHON_MODULE=ON
+        -DZXING_DEPENDENCIES=LOCAL
+        -Dpybind11_DIR="$(python3 -m pybind11 --cmakedir)"
+      - cmake --build _build --target zxingcpp
+      - install -Dm755 _build/wrappers/python/zxingcpp*.so
+        -t "${FLATPAK_DEST}/lib/python$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')/site-packages/"
+      # pybind11 is compiled into the module, so its licence ships with it.
+      - cp "$(python3 -c 'import pybind11; print(pybind11.__path__[0])')"-*.dist-info/licenses/LICENSE
+        LICENSE.pybind11
+    license-files:
+      - LICENSE
+      - LICENSE.pybind11
+    sources:
+      - type: archive
+        url: https://github.com/zxing-cpp/zxing-cpp/archive/refs/tags/v2.3.0.tar.gz
+        sha256: 64e4139103fdbc57752698ee15b5f0b0f7af9a0331ecbdc492047e0772c417ba
+
+  # Image library Tesseract is built on. GrabbyHands only feeds it PNG; TIFF stays on
+  # because Leptonica's built-in fonts are stored as TIFF data.
+  - name: leptonica
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_PROG=OFF
+      - -DSW_BUILD=OFF
+      - -DENABLE_GIF=OFF
+      - -DENABLE_WEBP=OFF
+      - -DENABLE_OPENJPEG=OFF
+    license-files:
+      - leptonica-license.txt
+    sources:
+      - type: archive
+        url: https://github.com/DanBloomberg/leptonica/releases/download/1.87.0/leptonica-1.87.0.tar.gz
+        sha256: c73363397f96eb1295602bf44d708a994ad42046c791bf03ea0505d829bdb6a7
+
+  # Text recognition (OCR). GrabbyHands runs the "tesseract" command.
+  - name: tesseract
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_TRAINING_TOOLS=OFF
+      - -DGRAPHICS_DISABLED=ON
+      - -DOPENMP_BUILD=OFF
+      - -DENABLE_NATIVE=OFF
+      - -DDISABLE_CURL=ON
+      - -DDISABLE_ARCHIVE=ON
+      - -DDISABLE_TIFF=ON
+      - -DENABLE_CCACHE=OFF
+      - -DINSTALL_CONFIGS=ON
+    sources:
+      - type: archive
+        url: https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.5.4.tar.gz
+        sha256: a8dbf8b8c8ee427ff6ad1d99116502feaf59440af1adb893caf60a6576826cf4
+
+  # English language data for Tesseract (the small, fast model).
+  - name: tessdata-eng
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 eng.traineddata -t ${FLATPAK_DEST}/share/tessdata/
+    sources:
+      - type: file
+        url: https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata
+        sha256: 7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2
+      - type: file
+        url: https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/LICENSE
+        sha256: cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30
+
+  - name: grabbyhands
+    buildsystem: meson
+    config-opts:
+      # A sandboxed app can't install into GNOME Shell: the Window Helper extension ships
+      # as a separate zip on the Releases page.
+      - -Dshell_extension=false
+    post-install:
+      # /app is read-only at run time, so compile the Python files now (hash-based, because
+      # OSTree resets file times and would make time-stamped .pyc files look stale).
+      - python3 -m compileall -q --invalidation-mode unchecked-hash ${FLATPAK_DEST}/share/grabbyhands
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .git
+          - .flatpak-builder
+          - build
+          - _build
+          - builddir
+          - dist
+          - docs
+          - debian

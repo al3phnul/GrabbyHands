@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Please don't attach screenshots that show personal information.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Press Print Screen
+        2. ...
+  - type: input
+    id: version
+    attributes:
+      label: GrabbyHands version
+      description: Shown in About GrabbyHands (open History, then Help), or run `grabbyhands --version`.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options: [Flatpak, .deb package, From source, Other]
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Distro, GNOME version, Wayland or X11
+      description: GNOME's version is in Settings, under System, then About.
+      placeholder: "Ubuntu 26.04, GNOME 50, Wayland"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: |
+        Quit GrabbyHands, start it from a terminal with logging on, repeat the problem and paste the output:
+        `grabbyhands --quit; GRABBYHANDS_DEBUG=1 grabbyhands --capture`
+        (Flatpak: `flatpak kill io.github.al3phnul.GrabbyHands; flatpak run --env=GRABBYHANDS_DEBUG=1 io.github.al3phnul.GrabbyHands --capture`).
+        The log never contains what you captured.
+      render: text

@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint and repository checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: ruff
+        # Pinned so a new ruff release can't turn CI red by itself; bump it deliberately.
+        run: |
+          pipx run ruff==0.17.4 check --output-format=github .
+          pipx run ruff==0.17.4 format --check .
+      - name: Versions, changelog, POTFILES, licence headers, Flatpak pins
+        run: python3 build-aux/check-repo.py
+
+  test:
+    name: Tests and validators (Ubuntu 26.04)
+    runs-on: ubuntu-latest
+    container: ubuntu:26.04
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git python3 python3-gi python3-gi-cairo python3-cairo \
+            gir1.2-gtk-4.0 gir1.2-adw-1 python3-pil python3-pytest python3-zxing-cpp \
+            tesseract-ocr tesseract-ocr-eng fonts-dejavu-core \
+            meson ninja-build gettext desktop-file-utils appstream libglib2.0-bin \
+            libgtk-4-bin dbus-daemon
+      - uses: actions/checkout@v7
+      - name: Unit tests and the GUI smoke test
+        run: python3 -m pytest -v
+      - name: Meson validators (desktop file, metainfo, schema)
+        run: |
+          meson setup build
+          meson test -C build --print-errorlogs
+      - name: Translation template builds
+        run: |
+          meson compile -C build grabbyhands-pot
+          test -s po/grabbyhands.pot
+
+  test-oldest:
+    # The oldest platform GrabbyHands promises to run on:
+    # GTK 4.14, libadwaita 1.5, Python 3.12, Pillow 10.2, Tesseract 5.3, zxing-cpp 2.2.
+    name: Tests on the oldest supported platform (Ubuntu 24.04)
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git python3 python3-gi python3-gi-cairo python3-cairo \
+            gir1.2-gtk-4.0 gir1.2-adw-1 python3-pil python3-pytest python3-zxing-cpp \
+            tesseract-ocr tesseract-ocr-eng fonts-dejavu-core \
+            libglib2.0-bin libgtk-4-bin dbus-daemon
+      - uses: actions/checkout@v7
+      - name: Versions under test
+        run: |
+          python3 --version
+          dpkg-query -W libgtk-4-1 libadwaita-1-0 python3-gi python3-pil tesseract-ocr python3-zxing-cpp
+      - name: Unit tests and the GUI smoke test
+        run: python3 -m pytest -v -rs
+
+  test-shell:
+    # The Window Helper extension inside a real GNOME Shell: the oldest GNOME GrabbyHands
+    # supports, the newest, and one in between. The Shell is headless (tests/shell_session.py).
+    name: Window Helper in a real GNOME Shell (${{ matrix.gnome }})
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {image: 'ubuntu:24.04', gnome: 'GNOME 46'}
+          - {image: 'debian:13', gnome: 'GNOME 48'}
+          - {image: 'ubuntu:26.04', gnome: 'GNOME 50'}
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install GNOME Shell and what the test needs
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git gnome-shell dbus dbus-daemon libglib2.0-bin \
+            libegl-mesa0 libgl1-mesa-dri \
+            python3 python3-gi gir1.2-gtk-4.0 python3-pytest
+      - uses: actions/checkout@v7
+      - name: Stand-ins for what a container lacks
+        run: |
+          # A system bus for the Shell to look at (with nothing on it).
+          mkdir -p /run/dbus
+          dbus-daemon --system --fork
+          # No login service here: without this folder the Shell uses its own stand-in.
+          rm -rf /run/systemd/seats
+      - name: Version under test
+        run: gnome-shell --version
+      - name: Try the extension in the Shell
+        env:
+          GRABBYHANDS_REQUIRE_SHELL: '1'   # here a Shell that won't start is a failure
+        run: python3 -m pytest -v -rs tests/test_shell.py
+
+  test-source:
+    # Follows the README's "From source" steps on a machine that has nothing yet.
+    name: Install from source (Ubuntu 24.04)
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install the packages the README lists
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates \
+            git meson gettext desktop-file-utils gtk-update-icon-cache libglib2.0-bin \
+            python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-4.0 gir1.2-adw-1 python3-pil \
+            tesseract-ocr python3-zxing-cpp
+      - uses: actions/checkout@v7
+      - name: Build and install into the home folder
+        run: |
+          meson setup build --prefix="$HOME/.local"
+          meson install -C build
+      - name: Run it
+        run: |
+          "$HOME/.local/bin/grabbyhands" --version
+          python3 build-aux/selftest.py --fixtures tests/fixtures
+          test -f "$HOME/.local/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io/extension.js"
+          test -f "$HOME/.local/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io/schemas/gschemas.compiled"
+      - name: Uninstall
+        run: |
+          ninja -C build uninstall
+          test ! -e "$HOME/.local/bin/grabbyhands"
+
+  packages:
+    name: Packages
+    uses: ./.github/workflows/build.yml

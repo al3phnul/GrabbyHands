@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<schemalist gettext-domain="grabbyhands">
+  <schema id="io.github.al3phnul.GrabbyHands" path="/io/github/al3phnul/GrabbyHands/">
+
+    <!-- Saving -->
+    <key name="auto-save" type="b">
+      <default>true</default>
+      <summary>Save every capture automatically</summary>
+    </key>
+    <key name="save-folder" type="s">
+      <default>''</default>
+      <summary>Folder for saved captures</summary>
+      <description>Empty means Pictures/GrabbyHands.</description>
+    </key>
+    <key name="filename-pattern" type="s">
+      <default>'%Y-%m-%d_%H-%M-%S'</default>
+      <summary>File name pattern (strftime codes)</summary>
+    </key>
+    <key name="export-format" type="s">
+      <choices>
+        <choice value="png"/>
+        <choice value="jpg"/>
+        <choice value="webp"/>
+      </choices>
+      <default>'png'</default>
+      <summary>Image format for saved captures</summary>
+    </key>
+    <key name="export-quality" type="i">
+      <range min="10" max="100"/>
+      <default>90</default>
+      <summary>JPG/WebP quality</summary>
+    </key>
+    <key name="history-limit" type="i">
+      <range min="0" max="100000"/>
+      <default>500</default>
+      <summary>Captures kept in history (0 = unlimited)</summary>
+    </key>
+
+    <!-- Capture -->
+    <key name="default-action" type="s">
+      <choices>
+        <choice value="copy"/>
+        <choice value="edit"/>
+        <choice value="save"/>
+        <choice value="pin"/>
+      </choices>
+      <default>'copy'</default>
+      <summary>What Enter does after selecting an area</summary>
+    </key>
+    <key name="delay-seconds" type="i">
+      <range min="1" max="60"/>
+      <default>5</default>
+      <summary>Default delay for delayed captures</summary>
+    </key>
+    <key name="show-loupe" type="b">
+      <default>true</default>
+      <summary>Show the pixel magnifier while selecting</summary>
+    </key>
+    <key name="color-format" type="s">
+      <choices>
+        <choice value="hex"/>
+        <choice value="rgb"/>
+        <choice value="cmyk"/>
+        <choice value="hsl"/>
+      </choices>
+      <default>'hex'</default>
+      <summary>Format used when copying a picked color</summary>
+    </key>
+    <key name="last-region" type="(iiiiii)">
+      <default>(0, 0, 0, 0, 0, 0)</default>
+      <summary>Last captured region</summary>
+      <description>x, y, width, height of the region, then the width and height of the full screenshot it was taken from (physical pixels).</description>
+    </key>
+    <key name="autostart" type="b">
+      <default>true</default>
+      <summary>Start in the background when you log in</summary>
+    </key>
+    <key name="shortcuts-declined" type="b">
+      <default>false</default>
+      <summary>The user declined the global shortcuts dialog</summary>
+      <description>When true, GrabbyHands won't ask for global shortcuts at startup. Setting up shortcuts again from Settings or Getting Started clears it.</description>
+    </key>
+    <key name="welcome-shown" type="b">
+      <default>false</default>
+      <summary>The Getting Started guide has been shown</summary>
+      <description>The guide opens by itself the first time GrabbyHands is launched. It stays available from History and Settings.</description>
+    </key>
+
+    <!-- Text tools -->
+    <key name="ocr-language" type="s">
+      <default>'eng'</default>
+      <summary>Tesseract language code(s), e.g. eng or eng+deu</summary>
+    </key>
+
+    <!-- Editor -->
+    <key name="accent-scheme" type="s">
+      <choices>
+        <choice value="violet"/>
+        <choice value="ocean"/>
+        <choice value="mint"/>
+        <choice value="sunset"/>
+        <choice value="rose"/>
+        <choice value="amber"/>
+        <choice value="graphite"/>
+        <choice value="system"/>
+      </choices>
+      <default>'violet'</default>
+      <summary>Colour scheme</summary>
+      <description>The accent colours used across GrabbyHands. "system" follows GNOME's accent colour.</description>
+    </key>
+    <key name="app-style" type="s">
+      <choices>
+        <choice value="system"/>
+        <choice value="light"/>
+        <choice value="dark"/>
+      </choices>
+      <default>'system'</default>
+      <summary>Light or dark</summary>
+    </key>
+    <key name="save-as-format" type="s">
+      <choices>
+        <choice value="png"/>
+        <choice value="jpg"/>
+        <choice value="webp"/>
+      </choices>
+      <default>'png'</default>
+      <summary>Format last used in Save As</summary>
+    </key>
+    <key name="save-as-quality" type="i">
+      <range min="10" max="100"/>
+      <default>90</default>
+      <summary>JPEG/WebP quality last used in Save As</summary>
+    </key>
+    <key name="save-as-scale" type="i">
+      <range min="10" max="100"/>
+      <default>100</default>
+      <summary>Size (percent) last used in Save As</summary>
+    </key>
+    <key name="editor-color" type="s">
+      <default>'#ff2d6f'</default>
+      <summary>Last used annotation color</summary>
+    </key>
+    <key name="editor-stroke" type="d">
+      <range min="1" max="64"/>
+      <default>4</default>
+      <summary>Last used stroke width</summary>
+    </key>
+    <key name="editor-font-size" type="d">
+      <range min="6" max="200"/>
+      <default>22</default>
+      <summary>Last used font size</summary>
+    </key>
+    <key name="editor-redact-mode" type="s">
+      <choices>
+        <choice value="pixelate"/>
+        <choice value="blur"/>
+        <choice value="solid"/>
+      </choices>
+      <default>'pixelate'</default>
+      <summary>Last used way of hiding things (Blur tool and Auto-Redact)</summary>
+    </key>
+    <key name="editor-redact-strength" type="d">
+      <range min="1" max="100"/>
+      <default>50</default>
+      <summary>Last used blur/pixelate strength (percent)</summary>
+    </key>
+
+    <!-- Window state -->
+    <key name="history-width" type="i">
+      <default>980</default>
+      <summary>History window width</summary>
+    </key>
+    <key name="history-height" type="i">
+      <default>680</default>
+      <summary>History window height</summary>
+    </key>
+  </schema>
+</schemalist>

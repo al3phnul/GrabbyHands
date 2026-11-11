@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Files with translatable strings, one per line.
+# CI checks that every file in grabbyhands/ that calls _() is listed here.
+data/io.github.al3phnul.GrabbyHands.desktop.in
+data/io.github.al3phnul.GrabbyHands.gschema.xml
+data/io.github.al3phnul.GrabbyHands.metainfo.xml.in
+grabbyhands/application.py
+grabbyhands/capture.py
+grabbyhands/color_window.py
+grabbyhands/editor/canvas.py
+grabbyhands/editor/window.py
+grabbyhands/export_dialog.py
+grabbyhands/history_window.py
+grabbyhands/ocr.py
+grabbyhands/overlay.py
+grabbyhands/permission.py
+grabbyhands/pin.py
+grabbyhands/portals.py
+grabbyhands/preferences.py
+grabbyhands/quickbar.py
+grabbyhands/redact.py
+grabbyhands/shortcuts_dialog.py
+grabbyhands/style.py
+grabbyhands/text_dialog.py
+grabbyhands/theme.py
+grabbyhands/welcome.py

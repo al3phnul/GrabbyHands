@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Publishes a GitHub Release when a tag like v0.1.0 is pushed.
+#
+# Dry run: start this workflow by hand (Actions > Release > Run workflow). It runs the same
+# checks, builds and install tests and leaves everything a release would contain in the
+# "release" artifact of the run, but publishes nothing.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Ready to release?
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      publish: ${{ steps.plan.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Repository checks
+        env:
+          IS_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          if [ "$IS_TAG" = "true" ]; then
+            # The tag must match the version everywhere and CHANGELOG.md needs its section.
+            python3 build-aux/check-repo.py --tag "$GITHUB_REF_NAME"
+            # Releases are cut from main only.
+            git fetch --no-tags origin main
+            git merge-base --is-ancestor "$(git rev-parse "$GITHUB_SHA^{commit}")" FETCH_HEAD \
+              || { echo "::error::$GITHUB_REF_NAME is not on main"; exit 1; }
+          else
+            python3 build-aux/check-repo.py
+          fi
+      - name: Plan
+        id: plan
+        env:
+          IS_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          echo "version=$(python3 build-aux/check-repo.py --print-version)" >> "$GITHUB_OUTPUT"
+          echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
+          if [ "$IS_TAG" != "true" ]; then
+            echo "Dry run: nothing will be published." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  packages:
+    name: Packages
+    needs: check
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    name: Publish the release
+    needs: [check, packages]
+    if: needs.check.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # create the release
+      id-token: write       # sign the build provenance
+      attestations: write   # store it
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release
+          path: release
+      - name: Verify the checksums
+        working-directory: release/dist
+        run: sha256sum -c SHA256SUMS
+      - name: Attest build provenance
+        # Attestations need a public repository (or a GitHub Enterprise plan).
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-checksums: release/dist/SHA256SUMS
+      - name: Note about provenance
+        if: ${{ !github.event.repository.private }}
+        run: |
+          cat >> release/release-notes.md <<'NOTES'
+
+          Every file also has a build provenance attestation:
+          `gh attestation verify <file> --repo al3phnul/GrabbyHands`
+          NOTES
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          prerelease=""
+          case "$GITHUB_REF_NAME" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" release/dist/* \
+            --verify-tag --title "GrabbyHands $VERSION" \
+            --notes-file release/release-notes.md $prerelease

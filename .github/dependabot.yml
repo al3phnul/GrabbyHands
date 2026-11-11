@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Keeps the GitHub Actions used by the workflows up to date. The versions of the software
+# bundled in the Flatpak are pinned by hand in build-aux/flatpak/ (see docs/third-party.md).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

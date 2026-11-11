@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: CC0-1.0 -->
+<!-- SPDX-FileCopyrightText: 2026 al3phnul and contributors -->
+<component type="desktop-application">
+  <id>io.github.al3phnul.GrabbyHands</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>GrabbyHands</name>
+  <summary>Grab, mark up and copy screenshots</summary>
+  <developer id="io.github.al3phnul">
+    <name>al3phnul</name>
+  </developer>
+
+  <description>
+    <p>
+      GrabbyHands is a fast screenshot tool for GNOME. Press Print Screen, drag over what you
+      want, and copy, save, mark up or pin it in one click.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Region, whole-screen and window capture, with a pixel magnifier and a delay timer</li>
+      <li>Repeat the last area with one shortcut</li>
+      <li>An editor with arrows, shapes, highlighter, text, callouts, numbered steps and stickers</li>
+      <li>Blur, pixelate or black out parts of a screenshot, or spotlight and magnify them</li>
+      <li>Auto-Redact finds and hides emails, phone numbers, card numbers and other personal details</li>
+      <li>Copy the text out of any screenshot (OCR) and read QR codes and barcodes</li>
+      <li>Identify Color shows the HEX, RGB and CMYK values of any pixel on screen</li>
+      <li>Pin screenshots to the screen, and browse and re-edit your capture history</li>
+      <li>Colour schemes with light and dark styles</li>
+    </ul>
+    <p>
+      Everything happens on your computer. GrabbyHands has no network access and never uploads
+      anything.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.al3phnul.GrabbyHands.desktop</launchable>
+  <translation type="gettext">grabbyhands</translation>
+
+  <url type="homepage">https://github.com/al3phnul/GrabbyHands</url>
+  <url type="bugtracker">https://github.com/al3phnul/GrabbyHands/issues</url>
+  <url type="help">https://github.com/al3phnul/GrabbyHands#readme</url>
+  <url type="vcs-browser">https://github.com/al3phnul/GrabbyHands</url>
+  <url type="contribute">https://github.com/al3phnul/GrabbyHands/blob/main/CONTRIBUTING.md</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Drag over what you want, then copy, save, pin or edit it</caption>
+      <image type="source" width="1024" height="768">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/capture.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Mark up a capture with arrows, boxes, text, numbered steps and blur</caption>
+      <image type="source" width="1024" height="740">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/editor.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Auto-Redact hides emails and phone numbers before you share</caption>
+      <image type="source" width="1024" height="740">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/auto-redact.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Pick the words you want to copy right on the screenshot</caption>
+      <image type="source" width="960" height="730">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/copy-text.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Identify the colour of any pixel on screen</caption>
+      <image type="source" width="1024" height="768">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/identify-color.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Every capture is kept in a history you can reopen and edit again</caption>
+      <image type="source" width="980" height="620">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/history.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Colour schemes with light and dark styles</caption>
+      <image type="source" width="1024" height="740">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/editor-ocean-dark.png</image>
+    </screenshot>
+  </screenshots>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#b8b0ff</color>
+    <color type="primary" scheme_preference="dark">#2a2470</color>
+  </branding>
+
+  <content_rating type="oars-1.1"/>
+
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+
+  <provides>
+    <binary>grabbyhands</binary>
+  </provides>
+
+  <keywords>
+    <keyword>screenshot</keyword>
+    <keyword>capture</keyword>
+    <keyword>OCR</keyword>
+    <keyword>annotate</keyword>
+    <keyword>redact</keyword>
+    <keyword>color picker</keyword>
+    <keyword>QR code</keyword>
+  </keywords>
+
+  <releases>
+    <release version="0.1.0" date="2026-11-11">
+      <url type="details">https://github.com/al3phnul/GrabbyHands/blob/main/CHANGELOG.md</url>
+      <description>
+        <p>
+          First public release: region, whole-screen and window capture, an editor with
+          markup and redaction tools, Auto-Redact, Copy Text (OCR), QR codes, Identify Color,
+          pinned screenshots, a capture history and colour schemes.
+        </p>
+      </description>
+    </release>
+  </releases>
+</component>

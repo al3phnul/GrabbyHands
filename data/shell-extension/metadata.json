@@ -1,0 +1,9 @@
+{
+  "uuid": "grabbyhands@al3phnul.github.io",
+  "name": "GrabbyHands Window Helper",
+  "description": "Lets the GrabbyHands screenshot tool capture single windows: it tells GrabbyHands where the visible windows are and which app they belong to, never their titles or contents. If you turn it on in GrabbyHands' Settings, it also makes the screenshot button in the system menu start GrabbyHands.",
+  "shell-version": ["46", "47", "48", "49", "50"],
+  "settings-schema": "org.gnome.shell.extensions.grabbyhands",
+  "url": "https://github.com/al3phnul/GrabbyHands",
+  "version-name": "0.1.0"
+}

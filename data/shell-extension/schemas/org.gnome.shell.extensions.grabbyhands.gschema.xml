@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: 2026 al3phnul and contributors -->
+<schemalist>
+  <schema id="org.gnome.shell.extensions.grabbyhands" path="/org/gnome/shell/extensions/grabbyhands/">
+    <key name="replace-screenshot-button" type="b">
+      <default>false</default>
+      <summary>Start GrabbyHands from the system menu</summary>
+      <description>
+        When on, the screenshot button in GNOME's system menu starts a GrabbyHands capture
+        instead of GNOME's own screenshot tool. GrabbyHands sets this from its Settings.
+      </description>
+    </key>
+  </schema>
+</schemalist>

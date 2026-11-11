@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+option(
+  'shell_extension',
+  type: 'boolean',
+  value: true,
+  description: 'Install the GNOME Shell "Window Helper" extension used for window capture',
+)

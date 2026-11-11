@@ -1,0 +1,6 @@
+{
+  "uuid": "unsafe-mode@grabbyhands.test",
+  "name": "GrabbyHands test hook",
+  "description": "Only for GrabbyHands' own tests, inside a private, headless GNOME Shell: lets the test look at the Shell's menu. It is never installed.",
+  "shell-version": ["46", "47", "48", "49", "50"]
+}

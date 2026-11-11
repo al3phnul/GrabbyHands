@@ -1,0 +1,261 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Builds, tests and bundles everything a release ships:
+#   grabbyhands_<version>_all.deb                         Debian / Ubuntu package
+#   GrabbyHands-<version>-x86_64.flatpak                  Flatpak bundle
+#   grabbyhands@al3phnul.github.io.shell-extension.zip    Window Helper for Flatpak users
+#   SHA256SUMS
+# Called by ci.yml (every push and pull request) and by release.yml (tags).
+name: Packages
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  APP_ID: io.github.al3phnul.GrabbyHands
+  MANIFEST: build-aux/flatpak/io.github.al3phnul.GrabbyHands.yml
+
+jobs:
+  deb:
+    name: Build the .deb
+    runs-on: ubuntu-latest
+    # The oldest supported distro: its tools produce a package newer ones can read.
+    container: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install git and lintian
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git lintian
+      - uses: actions/checkout@v7
+      - name: Install the build dependencies from debian/control
+        run: apt-get build-dep -y --no-install-recommends ./
+      - name: Build
+        run: |
+          dpkg-buildpackage --build=binary --no-sign
+          mkdir -p dist
+          mv ../grabbyhands_*_all.deb dist/
+      - name: Package details
+        run: |
+          dpkg-deb --info dist/grabbyhands_*_all.deb
+          dpkg-deb --contents dist/grabbyhands_*_all.deb
+      - name: Lintian
+        # Errors fail the build; warnings and notes are only shown.
+        run: lintian --allow-root --info --display-info --fail-on error dist/grabbyhands_*_all.deb
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deb
+          path: dist/grabbyhands_*_all.deb
+          if-no-files-found: error
+
+  flatpak:
+    name: Build the Flatpak
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - name: Restore downloads and finished modules
+        uses: actions/cache@v5
+        with:
+          path: .flatpak-builder
+          key: flatpak-builder-${{ runner.arch }}-${{ hashFiles('build-aux/flatpak/*.yml') }}
+      - name: Build
+        run: |
+          flatpak-builder --force-clean --disable-rofiles-fuse --default-branch=stable \
+            --repo=build/flatpak-repo build/flatpak "$MANIFEST"
+      - name: Test inside the build sandbox
+        run: |
+          # "flatpak-builder --run" needs FUSE, which this container lacks; "flatpak build"
+          # runs a command in the same sandbox without it.
+          run() {
+            flatpak build --die-with-parent --env=TESSDATA_PREFIX=/app/share/tessdata \
+              build/flatpak "$@"
+          }
+          run grabbyhands --version
+          run tesseract --list-langs
+          run python3 - < build-aux/selftest.py
+      - name: Bundle
+        run: |
+          version=$(sed -n "s/^ *version: *'\(.*\)',\$/\1/p" meson.build | head -n 1)
+          mkdir -p dist
+          flatpak build-bundle build/flatpak-repo "dist/GrabbyHands-$version-x86_64.flatpak" \
+            "$APP_ID" stable --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
+          ls -l dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: flatpak
+          path: dist/GrabbyHands-*.flatpak
+          if-no-files-found: error
+
+  extension:
+    name: Pack the Shell extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Pack
+        run: |
+          sh build-aux/pack-extension.sh dist
+          unzip -l dist/*.shell-extension.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: extension
+          path: dist/*.shell-extension.zip
+          if-no-files-found: error
+
+  test-deb:
+    name: Install the .deb on ${{ matrix.image }}${{ matrix.minimal && ' (no recommends)' || '' }}
+    needs: deb
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['ubuntu:24.04', 'ubuntu:26.04', 'debian:13']
+        minimal: [false]
+        include:
+          - image: 'ubuntu:26.04'
+            minimal: true
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install git (only needed to fetch the tests)
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: deb
+          path: dist
+      - name: Install it the way the README says
+        if: ${{ !matrix.minimal }}
+        run: apt-get install -y ./dist/grabbyhands_*_all.deb
+      - name: Install it without the recommended packages
+        if: ${{ matrix.minimal }}
+        run: apt-get install -y --no-install-recommends ./dist/grabbyhands_*_all.deb
+      - name: Installed files
+        run: |
+          grabbyhands --version
+          test -f "/usr/share/applications/$APP_ID.desktop"
+          test -f "/usr/share/metainfo/$APP_ID.metainfo.xml"
+          test -f "/usr/share/dbus-1/services/$APP_ID.service"
+          test -f "/usr/share/glib-2.0/schemas/$APP_ID.gschema.xml"
+          test -f "/usr/share/icons/hicolor/scalable/apps/$APP_ID.svg"
+          test -f /usr/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io/extension.js
+          test -f /usr/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io/metadata.json
+          test -f /usr/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io/schemas/gschemas.compiled
+      - name: Self-test
+        run: python3 build-aux/selftest.py --fixtures tests/fixtures ${{ matrix.minimal && '--expect-missing ocr,qr' || '' }}
+      - name: Test suite against the installed package
+        if: ${{ !matrix.minimal }}
+        run: |
+          apt-get install -y --no-install-recommends \
+            python3-pytest libgtk-4-bin dbus-daemon fonts-dejavu-core
+          rm -rf grabbyhands   # the tests must find the installed copy, not the checkout
+          export PYTHONPATH=/usr/share/grabbyhands
+          python3 -c 'import grabbyhands; print(grabbyhands.__file__); assert grabbyhands.__file__.startswith("/usr/share/grabbyhands/")'
+          python3 -m pytest -v
+      - name: Uninstall cleanly
+        run: |
+          apt-get remove -y grabbyhands
+          test ! -e /usr/bin/grabbyhands
+          test ! -e /usr/share/grabbyhands
+          test ! -e /usr/share/gnome-shell/extensions/grabbyhands@al3phnul.github.io
+
+  test-flatpak:
+    name: Install the Flatpak bundle
+    needs: flatpak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: flatpak
+          path: dist
+      - name: Install Flatpak itself
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak dbus-daemon
+          # Flatpak's sandbox needs unprivileged user namespaces, which this runner restricts.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          mkdir -m 700 -p "$RUNNER_TEMP/xdg-runtime"
+          echo "XDG_RUNTIME_DIR=$RUNNER_TEMP/xdg-runtime" >> "$GITHUB_ENV"
+      - name: Install the bundle the way the README says
+        # Nothing but the file: the GNOME runtime must come along by itself from Flathub.
+        run: flatpak install --user --noninteractive ./dist/GrabbyHands-*.flatpak
+      - name: What got installed, and its permissions
+        run: |
+          flatpak list --user --columns=application,version,branch,origin,size
+          flatpak info --user --show-permissions "$APP_ID"
+          if flatpak info --user --show-permissions "$APP_ID" | grep -q network; then
+            echo "::error::the Flatpak has network access"; exit 1
+          fi
+      - name: Run it
+        run: |
+          run() { dbus-run-session -- flatpak run --user "$@"; }
+          run --command=grabbyhands "$APP_ID" --version
+          run --command=tesseract "$APP_ID" --list-langs
+          run --command=python3 "$APP_ID" - < build-aux/selftest.py
+          # The Python files were compiled at build time and are still valid after install.
+          run --command=python3 --env=PYTHONPATH=/app/share/grabbyhands "$APP_ID" \
+            -v -c 'import grabbyhands.colors' 2>&1 \
+            | grep -E '/app/share/grabbyhands/grabbyhands/__pycache__/colors\.cpython-[0-9]+\.pyc matches'
+      - name: GUI test inside the installed sandbox
+        run: |
+          rm -rf grabbyhands   # the tests must find the copy in /app, not the checkout
+          cat > "$RUNNER_TEMP/gui.py" <<'PY'
+          import sys
+          from pathlib import Path
+
+          import grabbyhands
+
+          assert grabbyhands.__file__.startswith("/app/share/grabbyhands/"), grabbyhands.__file__
+          tests = Path(sys.argv[1]) / "tests"
+          sys.path.insert(0, str(tests))
+          import broadway
+
+          result = broadway.run(tests / "gui_smoke.py")
+          print(result.stdout[-8000:])
+          print(result.stderr[-6000:], file=sys.stderr)
+          sys.exit(result.returncode)
+          PY
+          dbus-run-session -- flatpak run --user --filesystem="$PWD" \
+            --env=PYTHONPATH=/app/share/grabbyhands --command=python3 "$APP_ID" \
+            - "$PWD" < "$RUNNER_TEMP/gui.py"
+      - name: Uninstall cleanly
+        run: |
+          dbus-run-session -- flatpak uninstall --user --noninteractive --delete-data "$APP_ID"
+          ! flatpak info --user "$APP_ID" 2>/dev/null
+
+  bundle:
+    name: Release files and checksums
+    needs: [deb, flatpak, extension, test-deb, test-flatpak]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums and release notes
+        run: |
+          version=$(python3 build-aux/check-repo.py --print-version)
+          test -f "dist/grabbyhands_${version}_all.deb"
+          test -f "dist/GrabbyHands-$version-x86_64.flatpak"
+          test -f dist/grabbyhands@al3phnul.github.io.shell-extension.zip
+          (cd dist && sha256sum -- *.deb *.flatpak *.zip > SHA256SUMS && cat SHA256SUMS)
+          python3 build-aux/check-repo.py --release-notes > release-notes.md
+          cat release-notes.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release
+          path: |
+            dist/
+            release-notes.md
+          if-no-files-found: error

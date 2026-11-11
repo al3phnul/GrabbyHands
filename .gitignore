@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Meson build folders
+/build/
+/_build/
+/builddir/
+
+# Generated translation template (meson compile -C build grabbyhands-pot)
+/po/*.pot
+
+# Packages and their build leftovers
+/dist/
+*.flatpak
+*.deb
+/.flatpak-builder/
+/flatpak-repo/
+/debian/.debhelper/
+/debian/grabbyhands/
+/debian/files
+/debian/*.substvars
+/debian/*.log
+/debian/debhelper-build-stamp

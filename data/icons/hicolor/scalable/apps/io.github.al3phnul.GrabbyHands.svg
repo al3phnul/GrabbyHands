@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- GrabbyHands app icon. Original artwork, 2026 al3phnul and contributors. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b7dff"/>
+      <stop offset="0.55" stop-color="#5a4bff"/>
+      <stop offset="1" stop-color="#2f22b8"/>
+    </linearGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4a3bd0"/>
+      <stop offset="1" stop-color="#221888"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.25" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e3defc"/>
+    </linearGradient>
+  </defs>
+
+  <!-- tile: a solid base (the tile's thickness), the face, light from the top left -->
+  <rect x="8" y="12" width="112" height="108" rx="24" fill="url(#base)"/>
+  <rect x="8" y="8" width="112" height="108" rx="24" fill="url(#bg)"/>
+  <rect x="8" y="8" width="112" height="108" rx="24" fill="url(#glow)"/>
+  <rect x="9" y="9" width="110" height="106" rx="23" fill="none" stroke="url(#rim)" stroke-width="2"/>
+
+  <!-- dashed selection -->
+  <rect x="26" y="26" width="64" height="52" rx="3" fill="#ffffff" fill-opacity="0.12"
+        stroke="#ffffff" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round"/>
+
+  <!-- corner brackets -->
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 36 V24 a4 4 0 0 1 4 -4 H36"/>
+    <path d="M84 20 H96 a4 4 0 0 1 4 4 V36"/>
+    <path d="M20 68 V80 a4 4 0 0 0 4 4 H36"/>
+  </g>
+
+  <!-- grabbing hand on the bottom-right corner, with a little shadow on the tile -->
+  <path fill="#1a1260" fill-opacity="0.3"
+        d="M70 87 C60 85 55 74 62 68 C66 64 72 67 72 71 C72 64 80 63 81 70 C81 62 90 61 91 69
+           C91 61 100 61 101 69 C102 62 113 63 113 71 L113 93 C113 105 104 112 92 112 L86 112
+           C76 112 70 104 70 94 Z"/>
+  <g stroke="#221a7a" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- thumb -->
+    <path d="M70 84 C62 82 58 74 63 69 C67 65 73 68 76 73 Z" fill="url(#hand)"/>
+    <!-- palm + fingers -->
+    <path fill="url(#hand)"
+          d="M72 70
+             C72 64 80 63 81 69
+             C81 62 90 61 91 68
+             C91 61 100 61 101 68
+             C102 62 110 63 110 70
+             L110 90
+             C110 101 102 108 91 108
+             L86 108
+             C77 108 72 101 72 92 Z"/>
+    <!-- knuckle lines -->
+    <path d="M81 69 V78 M91 68 V78 M101 68 V78" fill="none" stroke-width="3"/>
+  </g>
+</svg>

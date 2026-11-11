@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Name=GrabbyHands
+GenericName=Screenshot Tool
+Comment=Grab, mark up and copy screenshots
+Exec=grabbyhands
+Icon=io.github.al3phnul.GrabbyHands
+Terminal=false
+Type=Application
+Categories=Graphics;GTK;
+# Translators: search terms, separated by semicolons. Keep the trailing semicolon.
+Keywords=screenshot;capture;snip;grab;ocr;annotate;markup;color;picker;qr;
+StartupNotify=true
+DBusActivatable=true
+X-GNOME-UsesNotifications=true
+Actions=capture;history;preferences;
+
+[Desktop Action capture]
+Name=Take Screenshot
+Exec=grabbyhands --capture
+
+[Desktop Action history]
+Name=Capture History
+Exec=grabbyhands --history
+
+[Desktop Action preferences]
+Name=Settings
+Exec=grabbyhands --preferences
