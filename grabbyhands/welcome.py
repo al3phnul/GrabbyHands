@@ -68,7 +68,7 @@ class WelcomeDialog(Adw.Dialog):
         self.keys_group = Adw.PreferencesGroup(title=_("Shortcuts That Work Anywhere"))
         self.print_group = Adw.PreferencesGroup(title=_("The Print Screen Key"))
         # When Print Screen still needs handing over, that comes first: it is the one step
-        # a newcomer can't guess. (Decided once, so nothing jumps around afterwards.)
+        # a newcomer can't guess. (Decided once, so nothing jumps around afterward.)
         if gnome_keys.status() == gnome_keys.HELD:
             page.add(self.print_group)
             page.add(self.keys_group)

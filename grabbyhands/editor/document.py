@@ -16,7 +16,7 @@ from typing import ClassVar
 
 from grabbyhands.colors import parse_hex
 
-VERSION = 2  # 2: redact strength became a 0-100 % scale
+VERSION = 2  # 2: redact strength became a 0-100% scale
 DEFAULT_COLOR = "#ff2d6f"
 BOX_HANDLES = ("nw", "n", "ne", "e", "se", "s", "sw", "w")
 
@@ -243,7 +243,7 @@ class CalloutItem(BoxItem):
 
 @dataclass(kw_only=True)
 class MagnifyItem(BoxItem):
-    """Source box (x0..y1) shown zoomed in a circle centred on (target_x, target_y)."""
+    """Source box (x0..y1) shown zoomed in a circle centered on (target_x, target_y)."""
 
     type: ClassVar[str] = "magnify"
     zoom: float = 2.0
@@ -422,7 +422,7 @@ LIMITS = {
     "width": (0.1, 2000.0),
     "size": (1.0, 2000.0),
 }
-# A version-1 redaction can be stronger than today's 100 % (see _v1_strength_to_percent).
+# A version-1 redaction can be stronger than today's 100% (see _v1_strength_to_percent).
 MAX_STRENGTH = 400.0
 COORDINATE_LIMIT = 1_000_000.0
 
@@ -490,7 +490,7 @@ def item_from_dict(data: object) -> Item | None:
     return item
 
 
-# What 100 % means for a redaction (render.py draws with the same numbers).
+# What 100% means for a redaction (render.py draws with the same numbers).
 MAX_PIXEL_BLOCK = 20
 MAX_BLUR_RADIUS = 12.0
 
@@ -499,7 +499,7 @@ def _v1_strength_to_percent(mode: str, old: float) -> float:
     """Version 1 stored pixel sizes: pixelate blocks of 6 to 40 px, blur radii of 8 to 40 px.
 
     Today's scale ends at a 20 px block and a 12 px radius, so a strong old redaction comes
-    out above 100 %. It keeps exactly the strength it was drawn with (never weaker) until
+    out above 100%. It keeps exactly the strength it was drawn with (never weaker) until
     the user moves its Strength slider.
     """
     if mode == "pixelate":

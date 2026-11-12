@@ -89,9 +89,9 @@ Every capture is kept in a history you can browse, re-edit, delete (with Undo) o
   <img src="docs/screenshots/history.png" width="700" alt="The History window with thumbnails of earlier captures">
 </p>
 
-### Your colours
+### Your colors
 
-Violet by default, with Ocean, Mint, Sunset, Rose, Amber, Graphite or your GNOME accent colour,
+Violet by default, with Ocean, Mint, Sunset, Rose, Amber, Graphite or your GNOME accent color,
 in light or dark style.
 
 <p align="center">
@@ -188,7 +188,7 @@ meson install -C build
 
 This installs into your home folder (no `sudo` for the last step): the `grabbyhands` command in
 `~/.local/bin`, the app in `~/.local/share/grabbyhands`, its launcher, icons and settings
-schema, and the Window Helper extension. If `grabbyhands` isn't found afterwards, log out and
+schema, and the Window Helper extension. If `grabbyhands` isn't found afterward, log out and
 back in so `~/.local/bin` is on your PATH. On other distros install the same things under your
 distro's names: Meson, gettext, PyGObject with GTK 4.14+ and libadwaita 1.5+, pycairo, Pillow,
 and optionally Tesseract and the zxing-cpp Python module.
@@ -246,7 +246,7 @@ them. Pick whichever is easiest:
   gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Ctrl>Print']"
   ```
 
-If Print Screen doesn't respond afterwards, log out and back in once.
+If Print Screen doesn't respond afterward, log out and back in once.
 
 <p align="center">
   <img src="docs/screenshots/getting-started.png" width="380" alt="The Getting Started window: a Take a Screenshot button, the Print Screen key with the Use Print Screen for GrabbyHands button, the shortcuts that work anywhere, and things that are good to know">
@@ -309,7 +309,7 @@ at once; GNOME's own tool stays on its keyboard shortcut either way.
 | <kbd>R</kbd> | The last area again |
 | <kbd>D</kbd> | Capture after a delay |
 | <kbd>I</kbd> | Identify Color |
-| <kbd>C</kbd> | Copy the colour under the pointer (before you select an area) |
+| <kbd>C</kbd> | Copy the color under the pointer (before you select an area) |
 | <kbd>H</kbd> | Open History |
 | Arrow keys | Move the selection by 1 px (<kbd>Shift</kbd>: 10 px, <kbd>Alt</kbd>: resize) |
 | <kbd>Enter</kbd> | The default action (Copy, unless you changed it in Settings) |
@@ -345,14 +345,14 @@ the full list.
 Open **Settings** from the capture toolbar, the History window or the editor.
 
 <p align="center">
-  <img src="docs/screenshots/settings-appearance.png" width="410" alt="Settings, Appearance page: colour schemes and light or dark style">
+  <img src="docs/screenshots/settings-appearance.png" width="410" alt="Settings, Appearance page: color schemes and light or dark style">
   <img src="docs/screenshots/settings-general.png" width="410" alt="Settings, General page: capture options, start at login and keyboard shortcuts">
 </p>
 
 | Page | What you can change |
 |---|---|
-| **Appearance** | Colour scheme; light, dark or follow the system |
-| **General** | What <kbd>Enter</kbd> does, the magnifier, the delay, the colour format, start at login, the shortcuts that work anywhere, the system menu's screenshot button, Window Helper status |
+| **Appearance** | Color scheme; light, dark or follow the system |
+| **General** | What <kbd>Enter</kbd> does, the magnifier, the delay, the color format, start at login, the shortcuts that work anywhere, the system menu's screenshot button, Window Helper status |
 | **Saving** | Save every capture or not, the folder, the file name pattern, PNG / JPEG / WebP and quality, how many captures History keeps |
 | **Text** | The language used for text recognition |
 

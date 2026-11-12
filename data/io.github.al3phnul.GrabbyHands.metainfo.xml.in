@@ -27,7 +27,7 @@
       <li>Copy the text out of any screenshot (OCR) and read QR codes and barcodes</li>
       <li>Identify Color shows the HEX, RGB and CMYK values of any pixel on screen</li>
       <li>Pin screenshots to the screen, and browse and re-edit your capture history</li>
-      <li>Colour schemes with light and dark styles</li>
+      <li>Color schemes with light and dark styles</li>
     </ul>
     <p>
       Everything happens on your computer. GrabbyHands has no network access and never uploads
@@ -62,7 +62,7 @@
       <image type="source" width="960" height="730">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/copy-text.png</image>
     </screenshot>
     <screenshot>
-      <caption>Identify the colour of any pixel on screen</caption>
+      <caption>Identify the color of any pixel on screen</caption>
       <image type="source" width="1024" height="768">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/identify-color.png</image>
     </screenshot>
     <screenshot>
@@ -70,7 +70,7 @@
       <image type="source" width="980" height="620">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/history.png</image>
     </screenshot>
     <screenshot>
-      <caption>Colour schemes with light and dark styles</caption>
+      <caption>Color schemes with light and dark styles</caption>
       <image type="source" width="1024" height="740">https://raw.githubusercontent.com/al3phnul/GrabbyHands/main/docs/screenshots/editor-ocean-dark.png</image>
     </screenshot>
   </screenshots>
@@ -111,7 +111,7 @@
         <p>
           First public release: region, whole-screen and window capture, an editor with
           markup and redaction tools, Auto-Redact, Copy Text (OCR), QR codes, Identify Color,
-          pinned screenshots, a capture history and colour schemes.
+          pinned screenshots, a capture history and color schemes.
         </p>
       </description>
     </release>

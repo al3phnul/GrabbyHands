@@ -180,7 +180,7 @@ def test_join_words_rebuilds_lines_and_paragraphs():
 
 
 # -- theme ---------------------------------------------------------------------------
-def test_every_scheme_has_readable_colours():
+def test_every_scheme_has_readable_colors():
     from grabbyhands import theme
 
     for scheme in theme.schemes():

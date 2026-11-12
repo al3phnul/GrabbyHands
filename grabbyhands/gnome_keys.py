@@ -70,7 +70,7 @@ def undo_command() -> str:
 
 
 def on_gnome(desktop: str | None = None) -> bool:
-    """True on GNOME and its flavours (``XDG_CURRENT_DESKTOP`` such as ``ubuntu:GNOME``)."""
+    """True on GNOME and its flavors (``XDG_CURRENT_DESKTOP`` such as ``ubuntu:GNOME``)."""
     if desktop is None:
         desktop = os.environ.get("XDG_CURRENT_DESKTOP", "")
     return "gnome" in desktop.lower().split(":")

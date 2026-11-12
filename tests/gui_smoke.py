@@ -151,8 +151,8 @@ def _labels(widget):
         child = child.get_next_sibling()
 
 
-# -- behaviour and regressions -------------------------------------------------------------
-# Steps that pin down behaviour and past bugs. Each takes ``S``: the app, its capture controller,
+# -- behavior and regressions -------------------------------------------------------------
+# Steps that pin down behavior and past bugs. Each takes ``S``: the app, its capture controller,
 # settings, the list of notification tags (``sent``), full notifications (``notes``) and
 # ``overlay()`` from main(). They are registered at the end of the step list.
 NO_MODS = Gdk.ModifierType(0)
@@ -401,7 +401,7 @@ def fx_nudging_at_the_edges(S) -> None:
 
 def fx_two_screens(S) -> None:
     """Two screens, the second one to the LEFT of the main one (negative coordinates, as
-    GDK reports them), both at 150 %: one 3072 x 1152 screenshot."""
+    GDK reports them), both at 150%: one 3072 x 1152 screenshot."""
     from grabbyhands import capture as capture_mod
     from grabbyhands import overlay as overlay_mod
     from grabbyhands.windows import WindowRect
@@ -490,7 +490,7 @@ def fx_two_screens(S) -> None:
 
 
 def fx_delay(S) -> None:
-    """A countdown is announced where it can be seen (and cancelled), is out of the way
+    """A countdown is announced where it can be seen (and canceled), is out of the way
     before the picture is taken, and comes back in the mode it was started from."""
     win = S.overlay()
     S.cap.set_mode("color")
@@ -527,7 +527,7 @@ def fx_repeat_last_area(S) -> None:
     count = len(S.app.history.entries())
     S.cap.repeat_last()
     wait_for(lambda: S.cap.windows, what="the flash")
-    S.cap.windows[0]._on_key(None, Gdk.KEY_Escape, 0, NO_MODS)  # cancelled during the flash
+    S.cap.windows[0]._on_key(None, Gdk.KEY_Escape, 0, NO_MODS)  # canceled during the flash
     pump(0.5)
     assert len(S.app.history.entries()) == count, "Esc didn't stop the repeat"
     # an area from a different screen layout is not reused: the normal overlay opens instead
@@ -593,7 +593,7 @@ def fx_permission_and_missing_portal(S) -> None:
         asked.pop()(None, RESPONSE_UNAVAILABLE)
         assert S.cap._permission is None and not S.cap._busy
         assert S.notes[-1].tag == "error" and "ermission" not in S.notes[-1].body, S.notes[-1]
-        # cancelled by the user: nothing at all
+        # canceled by the user: nothing at all
         S.notes.clear()
         S.cap.capture()
         asked.pop()(None, 1)
@@ -746,7 +746,7 @@ def fx_editor_undo(S) -> None:
     win.set_tool("select")
     canvas.select(doc.get(text.id))
     win._set_option("color", "#123456")
-    did("recolouring")
+    did("recoloring")
     arrow = doc.items[0]
     canvas_drag(win, 110, 70, 150, 200)  # move the arrow by its middle
     did("moving")
@@ -883,7 +883,7 @@ def fx_editor_closing(S) -> None:
     assert Image.open(entry.saved_path).convert("RGB").tobytes() != before, "quit lost the edit"
     assert app.history.get(entry.id).edited
     written = Path(entry.saved_path).stat().st_mtime_ns
-    win.close()  # and closing afterwards doesn't save a second time
+    win.close()  # and closing afterward doesn't save a second time
     pump(0.3)
     assert Path(entry.saved_path).stat().st_mtime_ns == written
     app.delete_capture(entry.id, trash_saved=False)
@@ -1180,7 +1180,7 @@ def fx_desktop_integration(S) -> None:
     toast = hist._pending[entry.id]
     toast.emit("button-clicked")  # Undo
     assert hist.model.get_n_items() == count and entry.id not in hist._pending
-    toast.emit("dismissed")  # the toast going away afterwards deletes nothing
+    toast.emit("dismissed")  # the toast going away afterward deletes nothing
     assert app.history.get(entry.id) is not None and app.history.original_path(entry.id).exists()
     hist.close()
     app.delete_capture(entry.id, trash_saved=False)
@@ -1394,7 +1394,7 @@ FUNCTIONALITY_STEPS = [
     ("keys on Russian, Greek and Arabic keyboard layouts", fx_other_keyboard_layouts),
     ("capture: nudging and dragging at the edges", fx_nudging_at_the_edges),
     ("capture: two screens", fx_two_screens),
-    ("capture: countdown is visible, cancellable, keeps its mode", fx_delay),
+    ("capture: countdown is visible, cancelable, keeps its mode", fx_delay),
     ("capture: last area again (cancel, changed screens)", fx_repeat_last_area),
     ("capture: a lost screenshot request", fx_lost_screenshot_request),
     ("capture: permission window, missing portal", fx_permission_and_missing_portal),
@@ -2364,7 +2364,7 @@ def main() -> int:
         assert theme.current().scheme == "ocean"
         win = overlay()
         win.set_selection(_rect(10, 10, 200, 100))
-        render(win)  # the overlay draws with the new colours
+        render(win)  # the overlay draws with the new colors
         cap.cancel()
         settings.set_string("app-style", "dark")
         pump(0.2)
@@ -2426,7 +2426,7 @@ def main() -> int:
         ("editor: auto-redact", editor_auto_redact),
         ("preferences", preferences_dialog),
         ("stylesheets parse cleanly", stylesheets_parse_cleanly),
-        ("colour scheme + dark mode switching", scheme_switching),
+        ("color scheme + dark mode switching", scheme_switching),
         ("quick bar: Redact", quick_redact_action),
         ("about dialog", about_dialog),
         *[(name, lambda fn=fn: fn(fx)) for name, fn in FUNCTIONALITY_STEPS],

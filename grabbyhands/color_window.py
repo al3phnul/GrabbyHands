@@ -85,7 +85,7 @@ class ColorWindow(Adw.Window):
     def _draw_swatch(self, _area, ctx: cairo.Context, width: int, height: int) -> None:
         ctx.set_source_rgb(*(c / 255 for c in self.rgb))
         ctx.paint()
-        # the HEX value in the interface font (the widgets' own), centred on the colour, in
+        # the HEX value in the interface font (the widgets' own), centered on the color, in
         # black or white: whichever has the higher contrast (always at least 4.5:1)
         value = to_hex(self.rgb)
         layout = chrome.text_layout(ctx, value.upper(), 13)

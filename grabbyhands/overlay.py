@@ -846,7 +846,7 @@ class OverlayWindow(Gtk.Window):
         labels = [chrome.text_layout(ctx, label, 9, bold=not color_mode) for label, _v in rows]
         values = [chrome.text_layout(ctx, value, 9) for _l, value in rows]
         row_h = max(chrome.text_size(layout)[1] for layout in labels + values)
-        band = 12 if color_mode else 0  # a strip of the exact colour, right under the pixels
+        band = 12 if color_mode else 0  # a strip of the exact color, right under the pixels
         text_h = len(rows) * row_h + (len(rows) - 1) * row_gap
         info_h = math.ceil(band + 8 + text_h + 8)
         total_h = size + info_h
@@ -889,7 +889,7 @@ class OverlayWindow(Gtk.Window):
         ctx.paint()
         ctx.restore()
 
-        # cross-hair towards the middle pixel: dark under light, so it shows on anything
+        # cross-hair toward the middle pixel: dark under light, so it shows on anything
         cx, cy = lx + half * LOUPE_ZOOM, ly + half * LOUPE_ZOOM
         mid = LOUPE_ZOOM / 2
         for line_width, color in ((3, (0, 0, 0, 0.22)), (1, (1, 1, 1, 0.7))):
@@ -920,7 +920,7 @@ class OverlayWindow(Gtk.Window):
             ctx.rectangle(lx, top, size, band)
             ctx.fill()
         ctx.set_line_width(1)
-        ctx.set_source_rgba(0, 0, 0, 0.5)  # hairlines between picture, colour and values
+        ctx.set_source_rgba(0, 0, 0, 0.5)  # hairlines between picture, color and values
         for line_y in {top + 0.5, top + band + 0.5}:
             ctx.move_to(lx, line_y)
             ctx.line_to(lx + size, line_y)
@@ -935,7 +935,7 @@ class OverlayWindow(Gtk.Window):
                 ctx.move_to(lx + pad, y)
                 PangoCairo.show_layout(ctx, label)
                 vx = lx + pad + label_w + 10
-            else:  # position on the left, a dot of the colour and its HEX on the right
+            else:  # position on the left, a dot of the color and its HEX on the right
                 ctx.set_source_rgba(*p.rgb("chrome_fg"), 0.78)
                 ctx.move_to(lx + pad, y)
                 PangoCairo.show_layout(ctx, label)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2026 al3phnul and contributors
-"""The quick action bar shown next to a selection: labelled tiles with their keys."""
+"""The quick action bar shown next to a selection: labeled tiles with their keys."""
 
 from __future__ import annotations
 

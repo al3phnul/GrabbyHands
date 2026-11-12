@@ -96,7 +96,7 @@ class SaveAsDialog(Adw.Dialog):
         try:
             gfile = dialog.save_finish(result)
         except GLib.Error:
-            return  # cancelled
+            return  # canceled
         location = gfile.get_path()
         if location is None:  # a place that isn't a folder on this computer
             self.app.notify(

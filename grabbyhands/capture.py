@@ -257,7 +257,7 @@ class CaptureController:
             win.present()
 
             def act() -> bool:
-                if win in self.windows:  # not cancelled (Esc) during the flash
+                if win in self.windows:  # not canceled (Esc) during the flash
                     self.run_default_action(win)
                 return GLib.SOURCE_REMOVE
 
@@ -309,7 +309,7 @@ class CaptureController:
         GLib.timeout_add(700, lambda: (self._finish_shown(win), GLib.SOURCE_REMOVE)[1])
 
     def _finish_shown(self, win: OverlayWindow) -> None:
-        if win in self.windows:  # not cancelled (or replaced by a new capture) meanwhile
+        if win in self.windows:  # not canceled (or replaced by a new capture) meanwhile
             self._finish()
 
     def show_settings(self) -> None:

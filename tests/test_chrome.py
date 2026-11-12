@@ -2,7 +2,7 @@
 """The hand-drawn chrome (grabbyhands/chrome.py), drawn off screen.
 
 Straight edges have to land on whole device pixels at scale 1 and at scale 2: a frame or a
-panel edge that straddles two pixels turns into a blurry grey line.
+panel edge that straddles two pixels turns into a blurry gray line.
 """
 
 import cairo

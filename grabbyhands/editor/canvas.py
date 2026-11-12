@@ -317,7 +317,7 @@ class Canvas(Gtk.Overlay):
         sx0, sy0 = self.to_screen(x0, y0)
         sx1, sy1 = self.to_screen(x1, y1)
         accent = theme.current().rgb()
-        # A dashed hairline in the scheme colour over a white one: shows on any picture.
+        # A dashed hairline in the scheme color over a white one: shows on any picture.
         box = (round(sx0) - 3.5, round(sy0) - 3.5, round(sx1 - sx0) + 7, round(sy1 - sy0) + 7)
         ctx.set_line_width(1)
         ctx.set_source_rgba(1, 1, 1, 0.85)

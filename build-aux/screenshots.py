@@ -25,7 +25,7 @@ import broadway  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--out", required=True, type=Path, help="folder for the PNG files")
-    parser.add_argument("--scheme", default="violet", help="colour scheme id (default: violet)")
+    parser.add_argument("--scheme", default="violet", help="color scheme id (default: violet)")
     parser.add_argument("--dark", action="store_true", help="dark style")
     parser.add_argument("--only", default="", help="comma-separated scene names (default: all)")
     args = parser.parse_args()

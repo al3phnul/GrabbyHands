@@ -46,7 +46,7 @@ from grabbyhands.imaging import pil_to_surface, surface_to_pil
 
 log = logging.getLogger(__name__)
 
-# 100 % is a MAX_PIXEL_BLOCK px block or a MAX_BLUR_RADIUS px blur. Only redactions from
+# 100% is a MAX_PIXEL_BLOCK px block or a MAX_BLUR_RADIUS px blur. Only redactions from
 # version-1 documents go beyond that (up to MAX_STRENGTH); the Strength slider ends at 100.
 CACHE_SIZE = 256  # effect sources kept, at most
 CACHE_BYTES = 256 * 1024 * 1024  # ...and their pixels (more for very large screenshots)
@@ -356,7 +356,7 @@ def _draw_callout(ctx: cairo.Context, item: CalloutItem, _src: EffectSources) ->
         return
     radius = min(16.0, h / 3)
     cx, cy = x + w / 2, y + h / 2
-    # tail: a triangle from the bubble's centre region to the tail point
+    # tail: a triangle from the bubble's center region to the tail point
     angle = math.atan2(item.tail_y - cy, item.tail_x - cx)
     base = min(w, h) * 0.22
     px, py = -math.sin(angle) * base, math.cos(angle) * base
@@ -417,7 +417,7 @@ def _draw_sticker(ctx: cairo.Context, item: StickerItem, _src: EffectSources) ->
         tw, th = textmetrics.measure(item.text, size)
     lay = textmetrics.layout(ctx, item.text, size)
     ctx.move_to(x + (w - tw) / 2, y + (h - th) / 2)
-    _set_color(ctx, item.color, item.opacity)  # stamps use it; colour emoji ignore it
+    _set_color(ctx, item.color, item.opacity)  # stamps use it; color emoji ignore it
     PangoCairo.show_layout(ctx, lay)
 
 

@@ -25,7 +25,7 @@ jobs:
         run: |
           pipx run ruff==0.17.4 check --output-format=github .
           pipx run ruff==0.17.4 format --check .
-      - name: Versions, changelog, POTFILES, licence headers, Flatpak pins
+      - name: Versions, changelog, POTFILES, license headers, Flatpak pins
         run: python3 build-aux/check-repo.py
 
   test:

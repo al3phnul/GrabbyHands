@@ -160,7 +160,7 @@ class WordPicker(Gtk.DrawingArea):
         sel = self.selection
         pad = 2
         radius = 3 / self.scale
-        # every word that can be picked gets a whisper of colour; the one under the pointer more
+        # every word that can be picked gets a whisper of color; the one under the pointer more
         for i, word in enumerate(self.words):
             if sel and sel[0] <= i <= sel[1]:
                 continue

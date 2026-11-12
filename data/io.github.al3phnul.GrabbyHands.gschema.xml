@@ -106,8 +106,8 @@
         <choice value="system"/>
       </choices>
       <default>'violet'</default>
-      <summary>Colour scheme</summary>
-      <description>The accent colours used across GrabbyHands. "system" follows GNOME's accent colour.</description>
+      <summary>Color scheme</summary>
+      <description>The accent colors used across GrabbyHands. "system" follows GNOME's accent color.</description>
     </key>
     <key name="app-style" type="s">
       <choices>

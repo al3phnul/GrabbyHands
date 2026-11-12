@@ -34,7 +34,7 @@ run() {
 
 mkdir -p "$tmp/light" "$tmp/dark"
 run "$tmp/light"
-# One alternative look, to show colour schemes and dark style.
+# One alternative look, to show color schemes and dark style.
 run "$tmp/dark" --scheme ocean --dark
 
 mkdir -p "$out"

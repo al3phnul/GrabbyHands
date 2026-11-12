@@ -43,9 +43,9 @@ First public release.
 **Editor**
 - Arrow, line, box, circle, pen, highlighter, text, callout, numbered steps, stickers, crop,
   spotlight and magnify.
-- Blur, pixelate and black-out with a gradual 0–100 % strength.
+- Blur, pixelate and black-out with a gradual 0–100% strength.
 - An eraser that removes only what you drew, never the screenshot, plus Erase All.
-- Select, move, resize, recolour and delete anything you drew; undo and redo; zoom and pan.
+- Select, move, resize, recolor and delete anything you drew; undo and redo; zoom and pan.
 - Markup stays editable in History; closing the editor updates the saved file.
 - Auto-Redact (Ctrl+Shift+R): finds emails, phone numbers, card numbers (Luhn-checked), ID
   numbers, IPv4 addresses and API keys or tokens with on-device text recognition and covers
@@ -57,14 +57,14 @@ First public release.
 - Reads QR codes and barcodes.
 
 **Look and settings**
-- Colour schemes: Violet (default), Ocean, Mint, Sunset, Rose, Amber, Graphite or the GNOME
-  accent colour, in light, dark or system style. Everything follows the scheme, including the
+- Color schemes: Violet (default), Ocean, Mint, Sunset, Rose, Amber, Graphite or the GNOME
+  accent color, in light, dark or system style. Everything follows the scheme, including the
   capture overlay.
-- Labelled tool tiles in framed groups in the editor, on the capture toolbar and on the action
+- Labeled tool tiles in framed groups in the editor, on the capture toolbar and on the action
   bar; keys are shown in tooltips.
-- Every colour scheme meets WCAG contrast in light and dark, and the selection frame shows on
+- Every color scheme meets WCAG contrast in light and dark, and the selection frame shows on
   any background.
-- Settings: what Enter does, the magnifier, the delay, the colour format, start at login, a
+- Settings: what Enter does, the magnifier, the delay, the color format, start at login, a
   shortcut overview, the save folder, the file name pattern with a live example, format and
   quality, history size, the text-recognition language and the Window Helper status.
 

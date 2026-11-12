@@ -4,7 +4,7 @@
 Run through tests/test_portal.py, which gives it a private session bus. Everything else
 that touches portals in the tests uses a Python fake of the *client*; this is the one place
 where grabbyhands/portals.py itself talks over a real connection: request objects and their
-Response signals, the answers the app must tell apart (taken, cancelled, refused, no portal),
+Response signals, the answers the app must tell apart (taken, canceled, refused, no portal),
 a portal that dies or restarts in the middle of things, and a global-shortcuts session.
 """
 
@@ -125,7 +125,7 @@ def main() -> int:
     assert screenshot("cancel") == (None, portals.RESPONSE_CANCELLED)
     assert screenshot("refuse") == (None, portals.RESPONSE_OTHER)
     assert screenshot("error") == (None, portals.RESPONSE_OTHER)  # refused outright: same
-    print("ok     screenshot: taken, cancelled, refused")
+    print("ok     screenshot: taken, canceled, refused")
 
     # the portal dies while it owes an answer: the caller hears about it, once
     portal.control("Set", "screenshot", "silent")
