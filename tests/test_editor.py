@@ -29,7 +29,7 @@ RED = "#ff0000"
 
 
 def checker(w=200, h=120) -> Image.Image:
-    """Busy test image: 4px black/white checkerboard plus a grey band."""
+    """Busy test image: 4px black/white checkerboard plus a gray band."""
     img = Image.new("RGB", (w, h), "white")
     draw = ImageDraw.Draw(img)
     for y in range(0, h, 4):
@@ -115,7 +115,7 @@ def test_step_numbers_continue():
 
 
 # -- rendering ---------------------------------------------------------------------------
-def test_arrow_and_line_paint_their_colour():
+def test_arrow_and_line_paint_their_color():
     out = render([ArrowItem(x0=10, y0=60, x1=190, y1=60, color=RED, width=6)])
     assert out.getpixel((60, 60)) == (255, 0, 0)
     assert out.getpixel((60, 20)) == (255, 255, 255)
@@ -261,9 +261,9 @@ def _detail(mode: str, percent: float) -> float:
 def test_redaction_strength_is_gradual(mode):
     original = ImageStat.Stat(noisy().crop((40, 20, 160, 90)).convert("L")).stddev[0]
     levels = [_detail(mode, p) for p in (1, 10, 35, 70, 100)]
-    assert levels[0] > original * 0.9, levels  # 1 % barely changes anything
+    assert levels[0] > original * 0.9, levels  # 1% barely changes anything
     assert all(a >= b - 0.5 for a, b in zip(levels, levels[1:], strict=False)), levels
-    assert levels[-1] < original * 0.25, levels  # 100 % still hides fine detail
+    assert levels[-1] < original * 0.25, levels  # 100% still hides fine detail
 
 
 def test_strength_maximums_are_moderate():

@@ -165,7 +165,7 @@ def check_potfiles(files: list[str]) -> None:
         ok(f"po/POTFILES.in lists all {len(listed)} files with translatable strings")
 
 
-# -- licence headers -------------------------------------------------------------------
+# -- license headers -------------------------------------------------------------------
 def check_spdx(files: list[str]) -> None:
     missing = []
     for name in files:
@@ -179,7 +179,7 @@ def check_spdx(files: list[str]) -> None:
     if missing:
         problem("no SPDX-License-Identifier header: " + ", ".join(missing))
     else:
-        ok("every source and config file has an SPDX licence header")
+        ok("every source and config file has an SPDX license header")
 
 
 # -- flatpak manifest ------------------------------------------------------------------

@@ -2,7 +2,7 @@
 """Regression tests: one test (or a small group) per bug.
 
 Everything here is pure logic on temporary folders. Nothing reads or writes real settings,
-the real history, the clipboard or D-Bus; behaviour that needs windows or settings is
+the real history, the clipboard or D-Bus; behavior that needs windows or settings is
 covered by steps in tests/gui_smoke.py instead.
 """
 
@@ -112,9 +112,9 @@ def test_odd_values_are_made_safe_to_draw():
             ],
         }
     )
-    rect, coloured, spot, magnify, step, twin_a, twin_b = doc.items
+    rect, colored, spot, magnify, step, twin_a, twin_b = doc.items
     assert rect.fill == "none" and spot.shape == "rect" and doc.crop is None
-    assert coloured.color == RectItem().color
+    assert colored.color == RectItem().color
     assert magnify.zoom >= 1  # a zoom of 0 can't be drawn at all
     assert step.number == 3 and isinstance(step.number, int) and step.id
     assert twin_a.id != twin_b.id  # selection and undo go by id
@@ -198,7 +198,7 @@ def test_a_redaction_that_cannot_be_drawn_still_hides(monkeypatch):
 def test_one_broken_item_does_not_undo_the_redactions():
     base = noise()
     bad = RectItem(x0=5, y0=5, x1=30, y1=30)
-    bad.color = "not-a-colour"  # (the loader would have replaced it; this is a direct hit)
+    bad.color = "not-a-color"  # (the loader would have replaced it; this is a direct hit)
     items = [RedactItem(x0=40, y0=20, x1=160, y1=90, mode="solid"), bad]
     out = render_document(Document(items=items), base)
     assert out.crop((40, 20, 160, 90)).getextrema() == ((0, 0), (0, 0), (0, 0))
@@ -227,7 +227,7 @@ def test_redacted_pixels_are_gone_from_every_export(fmt, scale):
 
 
 def test_pixelated_blocks_hold_only_averages():
-    """Each block of a pixelated box is one flat colour: nothing finer is left in the file."""
+    """Each block of a pixelated box is one flat color: nothing finer is left in the file."""
     base = noise()
     doc = Document(items=[RedactItem(x0=40, y0=20, x1=160, y1=100, mode="pixelate", strength=100)])
     out = render_document(doc, base)
@@ -286,7 +286,7 @@ def _png16(path, w, h, alpha):
 
 
 @pytest.mark.parametrize("alpha", [False, True])
-def test_16_bit_screenshots_read_the_right_colours(tmp_path, alpha):
+def test_16_bit_screenshots_read_the_right_colors(tmp_path, alpha):
     """HDR desktops can hand out 16-bit PNGs. Cairo loads those as floating-point surfaces;
     Identify Color and the loupe then read garbage unless the pixels are converted first."""
     from grabbyhands.imaging import Rect, ScreenImage
@@ -565,7 +565,7 @@ def test_scale_and_width_limits_never_go_below_one_pixel():
     thin = Image.new("RGB", (2000, 1))
     assert export.scale_image(thin, 25).size == (500, 1)
     assert export.scale_image(thin, 100, max_width=3).size == (3, 1)
-    assert export.scale_image(thin, 0).size == (20, 1)  # 0 % is read as the smallest step
+    assert export.scale_image(thin, 0).size == (20, 1)  # 0% is read as the smallest step
     assert export.scale_image(thin, 500) is thin  # never enlarged
 
 
@@ -866,7 +866,7 @@ def _geo(x, y, w, h):
 FHD = (1920, 1080)
 SCREEN_LAYOUTS = [
     # (monitors as GDK reports them, screenshot size, where each lands in the screenshot)
-    # one screen at 100 %, 125 %, 150 % and 200 %
+    # one screen at 100%, 125%, 150% and 200%
     ([(0, 0, *FHD)], FHD, [(0, 0, *FHD)]),
     ([(0, 0, 1536, 864)], FHD, [(0, 0, *FHD)]),
     ([(0, 0, 1280, 720)], FHD, [(0, 0, *FHD)]),
@@ -874,7 +874,7 @@ SCREEN_LAYOUTS = [
     # a second screen to the left (negative x), and one above (negative y)
     ([(-1920, 0, *FHD), (0, 0, *FHD)], (3840, 1080), [(0, 0, *FHD), (1920, 0, *FHD)]),
     ([(0, -1080, *FHD), (0, 0, *FHD)], (1920, 2160), [(0, 0, *FHD), (0, 1080, *FHD)]),
-    # side by side at 150 %
+    # side by side at 150%
     ([(0, 0, 1280, 720), (1280, 0, 1280, 720)], (3840, 1080), [(0, 0, *FHD), (1920, 0, *FHD)]),
     # a smaller screen next to a bigger one, set lower
     (
@@ -882,7 +882,7 @@ SCREEN_LAYOUTS = [
         (4480, 1440),
         [(0, 0, 2560, 1440), (2560, 360, *FHD)],
     ),
-    # mixed scales (a 200 % laptop next to a 100 % monitor): the picture is taken at 200 %
+    # mixed scales (a 200% laptop next to a 100% monitor): the picture is taken at 200%
     (
         [(0, 0, *FHD), (1920, 0, *FHD)],
         (7680, 2160),
@@ -909,12 +909,12 @@ def test_window_positions_follow_the_desktop_scaling():
     from grabbyhands.windows import WindowRect, to_layout
 
     windows = [WindowRect(200, 100, 1600, 1200, "Files"), WindowRect(0, 0, 3840, 2160, "Web")]
-    hidpi = [_geo(0, 0, 1920, 1080)]  # a 4K screen at 200 %: the app sees 1920 x 1080
+    hidpi = [_geo(0, 0, 1920, 1080)]  # a 4K screen at 200%: the app sees 1920 x 1080
     assert to_layout(windows, (3840, 2160), hidpi) == [
         WindowRect(100, 50, 800, 600, "Files"),
         WindowRect(0, 0, 1920, 1080, "Web"),
     ]
-    # logical pixels already (fractional scaling on, or a 100 % screen): unchanged
+    # logical pixels already (fractional scaling on, or a 100% screen): unchanged
     assert to_layout(windows, (1920, 1080), hidpi) is windows
     # a helper from before it could tell, or no helper: as before
     assert to_layout(windows, None, hidpi) is windows

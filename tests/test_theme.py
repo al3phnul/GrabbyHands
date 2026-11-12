@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""The colour system and the generated stylesheet, checked without a display.
+"""The color system and the generated stylesheet, checked without a display.
 
 Contrast is computed, not eyeballed: every text/background pair the stylesheet makes has to
 reach WCAG's 4.5:1 (3:1 for the outlines of controls) in every scheme, light and dark. And
@@ -30,7 +30,7 @@ def _failures(p: theme.Palette, dark: bool) -> list[str]:
 def test_every_scheme_is_readable(scheme_id, dark):
     p = theme.palette(scheme_id)
     assert not _failures(p, dark)
-    # the scheme's own colours are kept; only what carries text is moved, and not far
+    # the scheme's own colors are kept; only what carries text is moved, and not far
     assert theme.contrast(p.accent, p.fill) < 1.25, (p.accent, p.fill)
     assert p.on_accent in (theme.WHITE, theme.INK)
 
@@ -42,7 +42,7 @@ def test_the_default_scheme_keeps_its_look():
     assert p.line == p.accent  # already bright enough on the dark capture screen
 
 
-# The accent colours GNOME and Ubuntu let people choose.
+# The accent colors GNOME and Ubuntu let people choose.
 DESKTOP_ACCENTS = [
     *("#3584e4", "#2190a4", "#3a944a", "#c88800", "#ed5b00", "#e62d42", "#d56199", "#9141ac"),
     *("#6f8396", "#e95420", "#787859", "#657b69", "#4b8501", "#03875b", "#308280", "#0073e5"),
@@ -51,7 +51,7 @@ DESKTOP_ACCENTS = [
 
 
 def test_any_gnome_accent_is_readable():
-    """The "GNOME Accent" scheme takes whatever colour the desktop has: those on offer
+    """The "GNOME Accent" scheme takes whatever color the desktop has: those on offer
     today, and any other hue of ordinary strength."""
     accents = list(DESKTOP_ACCENTS)
     for hue in range(0, 360, 15):
@@ -65,7 +65,7 @@ def test_any_gnome_accent_is_readable():
             assert not _failures(p, dark), accent
 
 
-def test_fit_moves_a_colour_only_as_far_as_needed():
+def test_fit_moves_a_color_only_as_far_as_needed():
     assert theme.fit("#123456", "#ffffff", lambda c: True) == "#123456"
     assert theme.fit("#123456", "#ffffff", lambda c: False) == "#ffffff"
     lifted = theme.fit("#404040", "#ffffff", lambda c: theme.contrast(c, "#000000") >= 7)
@@ -74,7 +74,7 @@ def test_fit_moves_a_colour_only_as_far_as_needed():
 
 # -- the stylesheet --------------------------------------------------------------------
 # What GTK 4.14 understands, of the things a stylesheet like ours might reach for.
-# (":root", "var()", custom properties, "color-mix()", relative colours and the
+# (":root", "var()", custom properties, "color-mix()", relative colors and the
 # space-separated "rgb(r g b / a)" form all arrived in 4.16.)
 KNOWN_PSEUDO_CLASSES = {
     "hover",
@@ -158,7 +158,7 @@ def test_the_plain_stylesheet_is_gtk_4_14_css():
             assert properties <= KNOWN_PROPERTIES, (where, selector, properties)
             functions = set(re.findall(r"([a-z-]+)\(", body))
             assert functions <= KNOWN_FUNCTIONS, (where, selector, functions)
-            # colours are "#rrggbb", "rgba(r, g, b, a)" with commas, or a named colour
+            # colors are "#rrggbb", "rgba(r, g, b, a)" with commas, or a named color
             for inside in re.findall(r"rgba\(([^)]*)\)", body):
                 assert inside.count(",") == 3 and "/" not in inside, (where, selector, inside)
 
@@ -176,7 +176,7 @@ def test_css_variables_are_one_block_on_top_of_the_plain_stylesheet():
             "--accent-color",
         }
         assert modern.replace("\n" + blocks[0], "") == plain, (scheme_id, dark)
-        # the named colours libadwaita 1.5 reads are always there
+        # the named colors libadwaita 1.5 reads are always there
         for name in ("accent_bg_color", "accent_fg_color", "accent_color"):
             assert f"@define-color {name} #" in plain, (scheme_id, dark, name)
 

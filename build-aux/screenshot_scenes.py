@@ -87,7 +87,7 @@ def snap(widget: Gtk.Widget, name: str, backdrop: bool = False) -> None:
 
     The picture is never stretched: what you get is exactly what GTK laid out. Resize the
     window first (set_default_size) if you want a different size. ``backdrop`` paints the
-    window background colour behind a widget that has none of its own.
+    window background color behind a widget that has none of its own.
     """
     node, w, h = None, 0, 0
     for _attempt in range(12):
@@ -948,7 +948,7 @@ def states(s: Session) -> None:
     win.set_focus_visible(True)
     snap(win, "states-history")
 
-    # Settings: keyboard focus on a colour scheme that is not the chosen one
+    # Settings: keyboard focus on a color scheme that is not the chosen one
     from grabbyhands import preferences
 
     win.set_default_size(980, 740)

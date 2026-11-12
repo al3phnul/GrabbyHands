@@ -41,17 +41,17 @@ above just talks to that one, so quit it first (`grabbyhands --quit`).
 ruff check . && ruff format --check .
 python3 -m pytest
 meson setup build && meson test -C build   # validates the desktop file, metainfo and schema
-python3 build-aux/check-repo.py            # versions, POTFILES, licence headers, Flatpak pins
+python3 build-aux/check-repo.py            # versions, POTFILES, license headers, Flatpak pins
 ```
 
 What the tests are:
 
-- `tests/test_*.py`: unit tests for the logic (colours, export, history, OCR, QR, redaction,
+- `tests/test_*.py`: unit tests for the logic (colors, export, history, OCR, QR, redaction,
   the editor's document and renderer).
 - `tests/test_gui.py` runs `tests/gui_smoke.py`: it starts the real app on a private Broadway
   display with a private D-Bus session, in-memory settings and a fake screenshot portal, and
   drives every window by calling what the mouse and keys call. Nothing appears on your screen
-  and your own settings and captures are not touched. Add a step there for UI behaviour.
+  and your own settings and captures are not touched. Add a step there for UI behavior.
 - `tests/test_shell.py` runs `tests/shell_smoke.py`: it loads the Window Helper extension into
   a real GNOME Shell that is headless and private (its own D-Bus session, settings, home and
   folders; nothing appears on your screen), then asks it what GrabbyHands asks and clicks the

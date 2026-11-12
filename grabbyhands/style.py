@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2026 al3phnul and contributors
-"""App-wide styling: a stylesheet generated from the active colour scheme, plus widgets."""
+"""App-wide styling: a stylesheet generated from the active color scheme, plus widgets."""
 
 from __future__ import annotations
 
@@ -41,25 +41,25 @@ GLASS_SHEEN = "rgba(255, 255, 255, 0.075)"  # the light that falls on their top 
 
 
 def bar_label_color(p: theme.Palette) -> str:
-    """Section headings on the dark capture bars: the scheme colour, lifted towards white."""
+    """Section headings on the dark capture bars: the scheme color, lifted toward white."""
     return theme.mix(p.line, "#ffffff", 0.4)
 
 
-# How strongly a capture-bar button is washed with the scheme colour in each state.
+# How strongly a capture-bar button is washed with the scheme color in each state.
 BAR_HOVER, BAR_PRESSED = 0.22, 0.34
 BAR_DISABLED = 0.45  # opacity of a bar button that can't be used right now
 BAR_OUTLINE = 0.4  # the Settings pill's white outline on the bars
 
 
 def _bar_card(p: theme.Palette, behind: str) -> str:
-    """A card on a capture bar, as a solid colour, with ``behind`` showing through."""
+    """A card on a capture bar, as a solid color, with ``behind`` showing through."""
     glass = theme.mix(behind, p.chrome, theme.GLASS_ALPHA)
     return theme.mix(glass, "#ffffff", 0.05)
 
 
 def bar_wash_color(p: theme.Palette) -> str:
     """What hovered and pressed buttons on the capture bars are washed with: the scheme
-    colour, toned down only if it is so bright that the bar's text would get lost on it."""
+    color, toned down only if it is so bright that the bar's text would get lost on it."""
     card = _bar_card(p, "#ffffff")
     return theme.fit(
         p.line,
@@ -83,8 +83,8 @@ def contrast_pairs(p: theme.Palette, dark: bool) -> list[tuple[str, str, str, fl
     dim = theme.DIM_DARK if dark else theme.DIM_LIGHT
     outline = theme.OUTLINE_DARK if dark else theme.OUTLINE_LIGHT
     pairs = [
-        ("lettering on the gradient's first colour", p.on_accent, p.fill, text_min),
-        ("lettering on the gradient's second colour", p.on_accent, p.fill2, text_min),
+        ("lettering on the gradient's first color", p.on_accent, p.fill, text_min),
+        ("lettering on the gradient's second color", p.on_accent, p.fill2, text_min),
     ]
     for surface in [*surfaces, *washed]:
         pairs.append(("accent text", accent_text, surface, text_min))
@@ -121,7 +121,7 @@ def stylesheet(p: theme.Palette, dark: bool = False, css_variables: bool | None 
     """The app's stylesheet for a palette, for light or dark windows.
 
     ``css_variables`` adds the ``:root`` block libadwaita 1.6+ needs; by default it follows
-    the running GTK. Everything else sticks to what GTK 4.14 parses: colours are worked out
+    the running GTK. Everything else sticks to what GTK 4.14 parses: colors are worked out
     here, in Python, instead of with ``var()`` or ``color-mix()``.
     """
     if css_variables is None:
@@ -153,12 +153,12 @@ def stylesheet(p: theme.Palette, dark: bool = False, css_variables: bool | None 
         else ""
     )
     return f"""
-/* Colour scheme: {p.scheme} */
+/* Color scheme: {p.scheme} */
 @define-color accent_bg_color {p.fill};
 @define-color accent_fg_color {on};
 @define-color accent_color {text};{root}
 
-/* Secondary text. libadwaita's own 55 % is only about 3:1 on its light surfaces. */
+/* Secondary text. libadwaita's own 55% is only about 3:1 on its light surfaces. */
 .dim-label, .dimmed, row label.subtitle, row.property label.title, windowtitle .subtitle,
 .gh-tool-how, .gh-feature-sub {{ opacity: {dim}; }}
 row.property label.subtitle {{ opacity: 1; }}
@@ -210,7 +210,7 @@ button.gh-danger:active {{ background-color: alpha(@destructive_color, 0.18); }}
   box-shadow: inset 0 -1px 0 alpha(currentColor, 0.24);
 }}
 
-/* Keyboard focus on our own controls: a full-strength ring in the scheme colour */
+/* Keyboard focus on our own controls: a full-strength ring in the scheme color */
 button.gh-settings:focus-visible, button.gh-feature:focus-visible,
 button.gh-tool:focus-visible {{
   outline: 2px solid {text};
@@ -408,9 +408,9 @@ button.gh-feature image {{ color: {text}; }}
 .gh-swatch-6 {{ background: #7c6cff; }}
 .gh-swatch-7 {{ background: #111111; }}
 .gh-swatch-8 {{ background: #ffffff; }}
-/* black and white need a real edge: one of them is always close to the bar's own colour */
+/* black and white need a real edge: one of them is always close to the bar's own color */
 .gh-swatch-7, .gh-swatch-8 {{ border-color: alpha(currentColor, {outline}); }}
-/* "Any colour": the same round shape as the swatches, inside a rainbow ring */
+/* "Any color": the same round shape as the swatches, inside a rainbow ring */
 .gh-options colorbutton > button {{
   min-width: 0; min-height: 0; padding: 3px; margin: 3px;
   border-radius: 999px;
@@ -468,7 +468,7 @@ gridview.gh-history-grid {{ padding: 10px; background: none; }}
   background-color: {_rgba(text, theme.TINT)}; color: {text};
 }}
 
-/* == settings: colour scheme and light/dark pickers == */
+/* == settings: color scheme and light/dark pickers == */
 .gh-scheme-card {{ padding: 14px 8px 10px 8px; }}
 button.gh-scheme {{
   min-width: 44px; min-height: 44px; padding: 0; border-radius: 999px;
@@ -490,13 +490,13 @@ button.gh-scheme:checked:focus-visible {{
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }}
 
-/* == colour window == */
+/* == color window == */
 .gh-color-swatch {{ border-radius: {rl}px; }}
 """
 
 
 def _scheme_buttons_css() -> str:
-    """Each scheme's own gradient on its button in Settings, with a tick on the chosen one."""
+    """Each scheme's own gradient on its button in Settings, with a check mark on the chosen one."""
     rules = []
     for scheme in theme.schemes():
         p = theme.palette(scheme.id)
@@ -654,7 +654,7 @@ def settings_button(tooltip_markup: str | None = None) -> Gtk.Button:
 
 
 def redraw_all(app: Gtk.Application) -> None:
-    """Redraw every hand-drawn area (they read colours from theme.current() when drawing)."""
+    """Redraw every hand-drawn area (they read colors from theme.current() when drawing)."""
 
     def walk(widget: Gtk.Widget) -> None:
         if isinstance(widget, Gtk.DrawingArea):

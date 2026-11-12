@@ -576,7 +576,7 @@ class EditorWindow(Adw.ApplicationWindow):
         bar.append(self.tool_hint)
         bar.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
 
-        # colour
+        # color
         colors = Gtk.Box(spacing=4)
         self.swatches: dict[str, Gtk.ToggleButton] = {}
         group = None

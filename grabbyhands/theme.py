@@ -56,19 +56,19 @@ INK = "#14121f"  # near-black lettering, a touch violet like the dark surfaces
 # The strongest accent wash that text sits on (badges, selected cards).
 TINT = 0.16
 # Backgrounds the accent has to read on: libadwaita's window, view/card, header bar and
-# popover colours (1.5 and current values), light and dark.
+# popover colors (1.5 and current values), light and dark.
 LIGHT_SURFACES = ("#fafafb", "#ffffff", "#ebebed", "#ebebeb")
 DARK_SURFACES = ("#222226", "#242424", "#1d1d20", "#2e2e32", "#303030", "#343437", "#383838")
-# Opacity of secondary text. libadwaita's 55 % is only about 3.2:1 on its light surfaces.
+# Opacity of secondary text. libadwaita's 55% is only about 3.2:1 on its light surfaces.
 DIM_LIGHT = 0.74
 DIM_DARK = 0.68
-# Neutral outline of a control (the Settings pill, colour swatches), as an alpha of the text
-# colour: 3:1 against the surface behind it.
+# Neutral outline of a control (the Settings pill, color swatches), as an alpha of the text
+# color: 3:1 against the surface behind it.
 OUTLINE_LIGHT = 0.56
 OUTLINE_DARK = 0.42
 
 
-# -- colour maths ------------------------------------------------------------------------
+# -- color math ------------------------------------------------------------------------
 def _rgb(value: str) -> tuple[int, int, int]:
     r, g, b, _a = parse_hex(value)
     return round(r * 255), round(g * 255), round(b * 255)
@@ -79,7 +79,7 @@ def _hex(rgb: tuple[float, float, float]) -> str:
 
 
 def mix(a: str, b: str, t: float) -> str:
-    """``t`` of the way from colour ``a`` to colour ``b``."""
+    """``t`` of the way from color ``a`` to color ``b``."""
     ra, rb = _rgb(a), _rgb(b)
     return _hex(tuple(x + (y - x) * t for x, y in zip(ra, rb, strict=True)))
 
@@ -104,8 +104,9 @@ def text_on(color: str) -> str:
 
 
 def fit(color: str, toward: str, good) -> str:
-    """``color``, moved towards ``toward`` only as far as it takes to make ``good(color)``
-    true. This is how a scheme's own colour is kept wherever it already reads well."""
+    """``color``, moved in the direction of ``toward`` only as far as it takes to make
+    ``good(color)`` true. This is how a scheme's own color is kept wherever it already reads
+    well."""
     steps = 50
     for i in range(steps + 1):
         candidate = mix(color, toward, i / steps)
@@ -116,7 +117,7 @@ def fit(color: str, toward: str, good) -> str:
 
 def text_on_gradient(a: str, b: str) -> str:
     """Lettering for a gradient from ``a`` to ``b``: judged at its worse end. White is kept
-    when it is nearly as good as dark (it looks cleaner on a saturated colour)."""
+    when it is nearly as good as dark (it looks cleaner on a saturated color)."""
 
     def worst(text: str) -> float:
         return min(contrast(text, a), contrast(text, b))
@@ -141,7 +142,7 @@ class Palette:
     on_accent: str
     chrome: str  # dark surface for the capture overlay (always dark: it floats over anything)
     chrome_fg: str
-    # The gradient that carries lettering (buttons, selected tiles): the two colours above,
+    # The gradient that carries lettering (buttons, selected tiles): the two colors above,
     # each moved just far enough for ``on_accent`` to reach TEXT_CONTRAST on it.
     fill: str = ""
     fill2: str = ""
@@ -152,8 +153,8 @@ class Palette:
         return r / 255, g / 255, b / 255
 
     def text(self, dark: bool) -> str:
-        """The accent as a text or outline colour on the app's own (light or dark)
-        surfaces. Hover, pressed and selected surfaces are washed with this same colour
+        """The accent as a text or outline color on the app's own (light or dark)
+        surfaces. Hover, pressed and selected surfaces are washed with this same color
         (up to TINT), and it stays readable on those too."""
         surfaces = DARK_SURFACES if dark else LIGHT_SURFACES
 
@@ -175,7 +176,7 @@ def system_accent() -> str | None:
 
 
 def build(scheme_id: str, accent: str, accent2: str) -> Palette:
-    """The whole palette for an accent and its gradient partner. Works for any two colours
+    """The whole palette for an accent and its gradient partner. Works for any two colors
     (the GNOME accent can be anything): what has to carry text is adjusted until it does."""
     chrome = mix("#0c0b16", accent, 0.14)
     on = text_on_gradient(accent, accent2)

@@ -38,7 +38,7 @@ def text_layout(ctx: cairo.Context, text: str, size: float = 10, bold: bool = Tr
     """A layout in the desktop's interface font (the one the widgets use), at the user's
     text size. Digits are tabular, so a size label doesn't jitter while it changes.
 
-    Colour and transparency are set on the Cairo context by the caller. (Pango's own alpha
+    Color and transparency are set on the Cairo context by the caller. (Pango's own alpha
     attribute is not used on purpose: its Cairo renderer is shared with GTK's text and
     kept the transparency for everything drawn after it.)
     """
@@ -52,7 +52,7 @@ def text_layout(ctx: cairo.Context, text: str, size: float = 10, bold: bool = Tr
     dpi = settings.get_property("gtk-xft-dpi") / 1024 if settings is not None else 0
     if dpi > 0:
         PangoCairo.context_set_resolution(layout.get_context(), dpi)
-    # Greyscale smoothing, like GTK's own text: no coloured fringes next to the widgets'.
+    # Grayscale smoothing, like GTK's own text: no colored fringes next to the widgets'.
     options = cairo.FontOptions()
     options.set_antialias(cairo.ANTIALIAS_GRAY)
     PangoCairo.context_set_font_options(layout.get_context(), options)
@@ -130,7 +130,7 @@ def chip(
     size: float = 10,
     center: bool = False,
 ) -> tuple[float, float]:
-    """A label on a small dark panel at x, y, or a pill centred on that point. ``detail``
+    """A label on a small dark panel at x, y, or a pill centered on that point. ``detail``
     follows the text in a quieter voice. Returns the panel's size."""
     fg = theme.current().rgb("chrome_fg")
     parts = [(part, alpha) for part, alpha in ((text, 1.0), (detail, 0.72)) if part]
@@ -165,7 +165,7 @@ def frame(
     radius: float = 0,
 ) -> None:
     """An outline just outside the box x, y, w, h: an accent stroke with a dark hairline
-    around it, so it shows on a white page as well as on a dark or accent-coloured one."""
+    around it, so it shows on a white page as well as on a dark or accent-colored one."""
     s = theme.STROKE
     x, y, w, h = round(x), round(y), round(w), round(h)
     ctx.save()

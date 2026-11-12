@@ -3,7 +3,7 @@
 
 Used by tests/test_shell.py to try the Window Helper extension in a real Shell. Nothing here
 touches the real desktop: the Shell draws to no screen, and it gets its own D-Bus session,
-settings and XDG folders, all thrown away afterwards.
+settings and XDG folders, all thrown away afterward.
 
 The outer half (``run``) prepares that private world and starts a script in it; the inner
 half (``Shell``) is used by that script to start and stop the Shell and to talk to it.

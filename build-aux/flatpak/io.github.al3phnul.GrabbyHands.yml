@@ -15,8 +15,8 @@ runtime: org.gnome.Platform
 runtime-version: '50'
 sdk: org.gnome.Sdk
 command: grabbyhands
-# The bundle contains more than GrabbyHands itself; say so where app stores show the licence.
-# Each module's licence text is installed under /app/share/licenses.
+# The bundle contains more than GrabbyHands itself; say so where app stores show the license.
+# Each module's license text is installed under /app/share/licenses.
 appdata-license: GPL-3.0-or-later AND CC-BY-SA-4.0 AND Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT-CMU
 
 finish-args:
@@ -91,7 +91,7 @@ modules:
       - cmake --build _build --target zxingcpp
       - install -Dm755 _build/wrappers/python/zxingcpp*.so
         -t "${FLATPAK_DEST}/lib/python$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')/site-packages/"
-      # pybind11 is compiled into the module, so its licence ships with it.
+      # pybind11 is compiled into the module, so its license ships with it.
       - cp "$(python3 -c 'import pybind11; print(pybind11.__path__[0])')"-*.dist-info/licenses/LICENSE
         LICENSE.pybind11
     license-files:
