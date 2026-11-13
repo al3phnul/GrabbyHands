@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+- Pixelate and reading QR codes in small pictures work again on Ubuntu 26.04. A Pillow
+  security update there (python3-pil 12.1.1-2ubuntu1.5) broke the image call both used.
+
 ## [0.1.0] - 2026-11-11
 
 First public release.

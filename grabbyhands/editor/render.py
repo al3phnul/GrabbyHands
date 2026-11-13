@@ -125,8 +125,11 @@ class EffectSources:
                         (max(1, math.ceil(w / block)), max(1, math.ceil(h / block))),
                         Image.Resampling.BOX,
                     )
+                    # BOX, not NEAREST: enlarging by a whole number gives the same pixels, and
+                    # NEAREST fails in one Pillow build that Ubuntu 26.04 shipped
+                    # (python3-pil 12.1.1-2ubuntu1.5).
                     crop = small.resize(
-                        (small.width * block, small.height * block), Image.Resampling.NEAREST
+                        (small.width * block, small.height * block), Image.Resampling.BOX
                     ).crop((0, 0, w, h))
                 return pil_to_surface(crop), x, y
             if kind == "blur":

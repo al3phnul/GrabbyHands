@@ -53,7 +53,9 @@ def read_codes(image: Image.Image) -> list[Code]:
     rgb = image.convert("RGB")
     results = zxingcpp.read_barcodes(rgb)
     if not results and max(rgb.size) < 800:
-        bigger = rgb.resize((rgb.width * 2, rgb.height * 2), Image.Resampling.NEAREST)
+        # BOX, not NEAREST: doubling gives the same pixels, and NEAREST fails in one Pillow
+        # build that Ubuntu 26.04 shipped (python3-pil 12.1.1-2ubuntu1.5).
+        bigger = rgb.resize((rgb.width * 2, rgb.height * 2), Image.Resampling.BOX)
         results = zxingcpp.read_barcodes(bigger)
     seen: set[str] = set()
     codes: list[Code] = []
