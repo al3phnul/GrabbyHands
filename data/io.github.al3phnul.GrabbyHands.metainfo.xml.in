@@ -105,6 +105,15 @@
   </keywords>
 
   <releases>
+    <release version="0.1.1" date="2026-11-13">
+      <url type="details">https://github.com/al3phnul/GrabbyHands/blob/main/CHANGELOG.md</url>
+      <description>
+        <p>
+          Pixelate and reading QR codes in small pictures work again on Ubuntu 26.04 after
+          its Pillow security update.
+        </p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-11-11">
       <url type="details">https://github.com/al3phnul/GrabbyHands/blob/main/CHANGELOG.md</url>
       <description>

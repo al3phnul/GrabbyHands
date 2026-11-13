@@ -146,8 +146,9 @@ formats, text recognition and QR reading.
    add a `<release>` with the same version and date to
    `data/io.github.al3phnul.GrabbyHands.metainfo.xml.in`.
 3. Run `python3 build-aux/check-repo.py --tag vX.Y.Z`. It has to print `0 problem(s)`.
-4. Commit, push the commit to a branch and get CI green for it (open a pull request, or run
-   the **CI** workflow on the branch by hand), then merge or fast-forward it into `main`.
+4. Commit, push the commit to a branch and open a pull request. When its checks are green,
+   merge it, or push that same commit to `main` (a fast-forward). A CI run started by hand
+   on a branch does not count: `main` only takes a commit whose pull request checks passed.
 5. Optional rehearsal: run the **Release** workflow by hand (Actions → Release → Run workflow).
    It builds and tests everything and leaves the files in the run's `release` artifact, but
    publishes nothing.

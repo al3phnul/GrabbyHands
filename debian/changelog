@@ -1,3 +1,10 @@
+grabbyhands (0.1.1) unstable; urgency=medium
+
+  * Pixelate and reading QR codes in small pictures work again on Ubuntu 26.04
+    after its Pillow security update (python3-pil 12.1.1-2ubuntu1.5).
+
+ -- al3phnul <38234799+al3phnul@users.noreply.github.com>  Fri, 13 Nov 2026 12:00:00 +0000
+
 grabbyhands (0.1.0) unstable; urgency=medium
 
   * First public release.
