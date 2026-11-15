@@ -118,13 +118,28 @@ def _as_dict(response) -> dict:
     return response.model_dump(mode="json", by_alias=True, exclude_unset=True)
 
 
+def _api_message(err: Exception) -> str:
+    """Anthropic's own wording of an error, without the status code and raw JSON."""
+    body = getattr(err, "body", None)
+    if isinstance(body, dict):
+        inner = body.get("error")
+        if isinstance(inner, dict) and isinstance(inner.get("message"), str):
+            return inner["message"]
+    return getattr(err, "message", "") or str(err)
+
+
+# A rejected strict schema ("too many optional parameters ... grammar compilation") names
+# the schema, not necessarily the word "strict".
+STRICT_REJECTIONS = ("strict", "grammar", "optional parameters", "schemas contains")
+
+
 def _translate(err: Exception) -> SmartEditError:
     """The SDK's typed errors -> what the panel should say."""
     try:
         import anthropic
     except ImportError:  # pragma: no cover
         return SmartEditError("unknown", str(err))
-    message = getattr(err, "message", "") or str(err)
+    message = _api_message(err)
     if isinstance(err, anthropic.AuthenticationError):
         return SmartEditError("key")
     if isinstance(err, anthropic.PermissionDeniedError):
@@ -240,8 +255,8 @@ class Session:
                 )
                 return _as_dict(response)
             except anthropic.BadRequestError as err:
-                text = (getattr(err, "message", "") or str(err)).lower()
-                if self.strict and "strict" in text:
+                text = _api_message(err).lower()
+                if self.strict and any(word in text for word in STRICT_REJECTIONS):
                     self.strict = False
                 elif self.use_fallbacks and "fallback" in text:
                     self.use_fallbacks = False

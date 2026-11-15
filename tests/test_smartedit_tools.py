@@ -55,7 +55,6 @@ def _objects(schema):
 
 def test_every_object_in_every_schema_is_closed():
     for tool in tool_definitions():
-        assert tool["strict"] is True
         for obj in _objects(tool["input_schema"]):
             assert obj["additionalProperties"] is False, tool["name"]
             assert set(obj["required"]) <= set(obj["properties"]), tool["name"]
@@ -72,7 +71,24 @@ def test_tool_set_is_exactly_the_editing_surface():
         "find_text",
         "find_personal_info",
     }
-    assert "strict" not in tool_definitions(strict=False)[0]
+    assert all("strict" not in t for t in tool_definitions(strict=False))
+
+
+def test_only_tools_without_optional_fields_are_strict():
+    # The API turned down strict schemas with 42 optional fields ("would make grammar
+    # compilation inefficient"); the drawing tools have that many, the small ones none.
+    strict = {t["name"] for t in tool_definitions() if t.get("strict")}
+    assert strict == {
+        "delete_annotations",
+        "set_crop",
+        "remove_crop",
+        "find_text",
+        "find_personal_info",
+    }
+    for tool in tool_definitions():
+        if tool.get("strict"):
+            for obj in _objects(tool["input_schema"]):
+                assert set(obj["required"]) == set(obj["properties"]), tool["name"]
 
 
 def test_schemas_offer_no_hand_drawn_types():

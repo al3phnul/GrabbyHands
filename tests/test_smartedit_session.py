@@ -143,7 +143,13 @@ def test_request_shape():
     assert first["extra_body"]["fallbacks"] == "default"
     assert first["extra_body"]["cache_control"] == {"type": "ephemeral"}
     assert first["extra_headers"] == {"anthropic-beta": sess.FALLBACK_BETA}
-    assert all(t["strict"] for t in first["tools"])
+    assert {t["name"] for t in first["tools"] if t.get("strict")} == {
+        "delete_annotations",
+        "set_crop",
+        "remove_crop",
+        "find_text",
+        "find_personal_info",
+    }
     blocks = first["messages"][0]["content"]
     assert blocks[0]["type"] == "image" and blocks[0]["source"]["media_type"] == "image/png"
     assert "<editor_state>" in blocks[1]["text"] and blocks[1]["text"].endswith("first")
@@ -177,12 +183,35 @@ def test_refusal_keeps_history_but_counts_money(anthropic_module):
     assert s.spent > 0
 
 
-def test_rejected_strict_is_dropped_and_retried(anthropic_module):
-    rejection = anthropic_module.BadRequestError("tools.0.strict: not supported for this model")
+@pytest.mark.parametrize(
+    "message",
+    [
+        "tools.2.strict: not supported for this model",
+        # what the API really said in the first live test:
+        "Schemas contains too many optional parameters (42), which would make grammar "
+        "compilation inefficient. Reduce the number of optional parameters.",
+    ],
+)
+def test_rejected_strict_is_dropped_and_retried(anthropic_module, message):
+    rejection = anthropic_module.BadRequestError(f"Error code: 400 - {message}")
+    rejection.body = {
+        "type": "error",
+        "error": {"type": "invalid_request_error", "message": message},
+    }
     s = session([rejection, done()])
     s.send(Document(), "x")
     first, second = s.client.messages.calls
-    assert "strict" in first["tools"][0] and "strict" not in second["tools"][0]
+    assert any("strict" in t for t in first["tools"])
+    assert not any("strict" in t for t in second["tools"])
+
+
+def test_request_errors_show_anthropics_words_only(anthropic_module):
+    err = anthropic_module.BadRequestError("Error code: 400 - {'type': 'error', ...}")
+    err.body = {"type": "error", "error": {"type": "invalid_request_error", "message": "Too long."}}
+    s = session([err])
+    with pytest.raises(SmartEditError) as caught:
+        s.send(Document(), "x")
+    assert (caught.value.kind, caught.value.detail) == ("request", "Too long.")
 
 
 @pytest.mark.parametrize(

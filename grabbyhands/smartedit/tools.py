@@ -251,10 +251,30 @@ TOOLS: list[dict] = [
 TOOL_NAMES = frozenset(t["name"] for t in TOOLS)
 
 
+def _has_optional_fields(schema: object) -> bool:
+    if isinstance(schema, dict):
+        if schema.get("type") == "object" and set(schema.get("properties", {})) - set(
+            schema.get("required", [])
+        ):
+            return True
+        return any(_has_optional_fields(v) for v in schema.values())
+    if isinstance(schema, list):
+        return any(_has_optional_fields(v) for v in schema)
+    return False
+
+
+# The API compiles strict schemas into a grammar and turns down ones with many optional
+# fields (the item types have dozens), so only the small tools are strict. Every call is
+# checked here either way; strict is an extra guard, not the safety boundary.
+STRICT_TOOLS = frozenset(t["name"] for t in TOOLS if not _has_optional_fields(t["input_schema"]))
+
+
 def tool_definitions(strict: bool = True) -> list[dict]:
-    """The tools for a request. ``strict`` asks the API to keep arguments to the schemas
-    (an extra guard; everything is checked here anyway)."""
-    return [{**t, "strict": True} if strict else dict(t) for t in TOOLS]
+    """The tools for a request; with ``strict``, the small ones ask the API to keep their
+    arguments to the schema."""
+    return [
+        {**t, "strict": True} if strict and t["name"] in STRICT_TOOLS else dict(t) for t in TOOLS
+    ]
 
 
 # -- applying calls -----------------------------------------------------------------------------

@@ -144,7 +144,8 @@ def test_full_turn_through_the_real_library(server):
     assert body["fallbacks"] == "default"
     assert body["output_config"] == {"effort": "medium"}
     assert body["cache_control"] == {"type": "ephemeral"}
-    assert body["tools"][0]["strict"] is True
+    strict = {t["name"] for t in body["tools"] if t.get("strict")}
+    assert "find_text" in strict and "add_annotations" not in strict
     # the second request echoes the first answer's blocks unchanged, fallback block included
     echoed = calls[1]["body"]["messages"][1]["content"]
     assert [b["type"] for b in echoed] == ["fallback", "thinking", "tool_use"]
@@ -186,8 +187,8 @@ def test_rejected_strict_is_retried_without_it(server):
     s = Session(client=client_for(srv), image=prepare_image(Image.new("RGB", (100, 100))))
     s.send(Document(), "x")
     calls = [r for r in srv.requests if r["path"] == "/v1/messages"]
-    assert "strict" in calls[0]["body"]["tools"][0]
-    assert "strict" not in calls[1]["body"]["tools"][0]
+    assert any("strict" in t for t in calls[0]["body"]["tools"])
+    assert not any("strict" in t for t in calls[1]["body"]["tools"])
 
 
 def test_make_client_pins_the_official_address(monkeypatch):
