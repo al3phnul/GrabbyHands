@@ -42,6 +42,7 @@ install_subdir(
     '__pycache__',
     'editor/__pycache__',
     'editor/tools/__pycache__',
+    'smartedit/__pycache__',
   ],
 )
 
