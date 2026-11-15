@@ -1439,13 +1439,10 @@ def fx_smart_edit(S) -> None:
 
     settings = S.app.settings
     real = (available.smart_edit_available, secret.lookup, sess.make_client)
-    had_sdk = "anthropic" in sys.modules
-    if not had_sdk:
-        try:
-            import anthropic  # noqa: F401
-        except ImportError:
-            sys.modules["anthropic"] = _fake_anthropic_module()
-    errors = sys.modules["anthropic"]
+    # Always the stand-in library here (also where the real one is installed, as in the
+    # Flatpak): its errors are simple to make, and the real one is put back afterward.
+    real_sdk = sys.modules.get("anthropic")
+    sys.modules["anthropic"] = errors = _fake_anthropic_module()
     clients = types.SimpleNamespace(append=lambda _c: None, panel=None)
 
     def client(script, gate=None):
@@ -1574,12 +1571,10 @@ def fx_smart_edit(S) -> None:
         settings.reset("smart-edit-enabled")
         settings.reset("smart-edit-consent")
         settings.reset("smart-edit-hide-personal")
-        if (
-            not had_sdk
-            and isinstance(sys.modules.get("anthropic"), types.ModuleType)
-            and not hasattr(sys.modules["anthropic"], "__version__")
-        ):
-            del sys.modules["anthropic"]
+        if real_sdk is not None:
+            sys.modules["anthropic"] = real_sdk
+        else:
+            sys.modules.pop("anthropic", None)
 
 
 FUNCTIONALITY_STEPS = [
