@@ -16,6 +16,7 @@ import base64
 import copy
 import io
 import json
+import logging
 import math
 import threading
 from dataclasses import dataclass, field
@@ -104,11 +105,26 @@ def prepare_image(image: Image.Image, hide: list[tuple[int, int, int, int]] = ()
     )
 
 
+# Loggers of Anthropic's library and its HTTP stack. At DEBUG they write whole requests (the
+# picture, the messages) to the log, so they stay at WARNING even when GrabbyHands' own debug
+# logging is on (GRABBYHANDS_DEBUG, ANTHROPIC_LOG).
+QUIET_LOGGERS = ("anthropic", "httpx", "httpx2", "httpcore", "httpcore2")
+
+
+def quiet_library_logs() -> None:
+    for name in QUIET_LOGGERS:
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.WARNING)
+        for handler in logger.handlers:  # the library adds its own handler for ANTHROPIC_LOG
+            handler.setLevel(logging.WARNING)
+
+
 def make_client(api_key: str):
     """Anthropic's client with the person's key and the official address, set explicitly so
     environment variables can't swap either."""
     import anthropic
 
+    quiet_library_logs()  # after the import: the library sets its own levels when loaded
     return anthropic.Anthropic(api_key=api_key, base_url=API_BASE, max_retries=2, timeout=180.0)
 
 

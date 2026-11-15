@@ -16,6 +16,10 @@ gi.require_version("Adw", "1")
 def main(version: str) -> int:
     level = logging.DEBUG if os.environ.get("GRABBYHANDS_DEBUG") else logging.WARNING
     logging.basicConfig(level=level, format="grabbyhands %(levelname)s %(name)s: %(message)s")
+    # Smart Edit's libraries log whole requests (picture, messages) at DEBUG: never let them.
+    from grabbyhands.smartedit.session import quiet_library_logs
+
+    quiet_library_logs()
 
     from grabbyhands.application import GrabbyHandsApp
 

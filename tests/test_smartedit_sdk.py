@@ -197,3 +197,25 @@ def test_make_client_pins_the_official_address(monkeypatch):
     client = sess.make_client(KEY)
     assert str(client.base_url).rstrip("/") == sess.API_BASE
     assert client.api_key == KEY
+
+
+def test_debug_logging_never_carries_the_picture_messages_or_key(server, caplog, monkeypatch):
+    """GRABBYHANDS_DEBUG (and ANTHROPIC_LOG) must not put requests in the log."""
+    import logging
+
+    monkeypatch.setenv("ANTHROPIC_LOG", "debug")
+    srv = server([(200, message([{"type": "text", "text": "ok"}], "end_turn"))])
+    caplog.set_level(logging.DEBUG)  # the most a debug run could ever capture
+    real_client = sess.make_client  # quiets the library's loggers, as the app does
+    real_client(KEY)
+    client = anthropic.Anthropic(api_key=KEY, base_url=srv.url, max_retries=0)
+    picture = Image.new("RGB", (64, 64), (200, 30, 90))
+    s = Session(client=client, image=prepare_image(picture))
+    s.send(Document(), "SECRET-REQUEST-TEXT please")
+    logged = "\n".join(r.getMessage() for r in caplog.records)
+    assert "SECRET-REQUEST-TEXT" not in logged
+    assert "editor_state" not in logged
+    assert s.image.data[:40] not in logged
+    assert KEY not in logged and "sk-ant" not in logged
+    for name in sess.QUIET_LOGGERS:
+        assert logging.getLogger(name).getEffectiveLevel() >= logging.WARNING
