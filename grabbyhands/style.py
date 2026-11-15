@@ -117,6 +117,10 @@ def contrast_pairs(p: theme.Palette, dark: bool) -> list[tuple[str, str, str, fl
     return pairs
 
 
+# Smart Edit's own gradient (pink, violet, blue): the same in every color scheme.
+SMART_GRADIENT = "#e11d74, #6d4aff 55%, #0e7fc0"
+
+
 def stylesheet(p: theme.Palette, dark: bool = False, css_variables: bool | None = None) -> str:
     """The app's stylesheet for a palette, for light or dark windows.
 
@@ -338,6 +342,38 @@ button.gh-settings:active {{ background-color: alpha(currentColor, 0.13); }}
   margin: 0 4px 2px 4px;
 }}
 .gh-tile-label {{ font-size: {T_SMALL}; font-weight: 600; }}
+
+/* == Smart Edit: the one place with its own colors. A vivid gradient that reads as
+   "something special" in every scheme; white lettering stays above 4.4:1 on each stop. == */
+button.gh-smart {{
+  background-image: linear-gradient(120deg, {SMART_GRADIENT});
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 3px 14px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 10px rgba(109, 74, 255, 0.45), 0 0 18px rgba(225, 29, 116, 0.28);
+  {EASE};
+}}
+button.gh-smart:hover {{
+  filter: brightness(1.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 3px 14px rgba(109, 74, 255, 0.6), 0 0 24px rgba(225, 29, 116, 0.4);
+}}
+button.gh-smart:active {{ filter: brightness(0.93); }}
+button.gh-smart:checked {{
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6), 0 2px 10px rgba(109, 74, 255, 0.45),
+    0 0 18px rgba(225, 29, 116, 0.28);
+}}
+button.gh-smart image, button.gh-smart label {{ color: #ffffff; }}
+button.gh-smart-tile {{
+  border-radius: {rm}px;
+  padding: 7px 9px;
+}}
+button.gh-smart-tile .gh-feature-title {{ font-weight: 800; font-size: {T_CAPTION}; }}
+button.gh-smart-tile .gh-feature-sub {{ font-size: {T_SMALL}; opacity: 0.9; }}
+.gh-key-ok {{ color: @success_color; }}
+.gh-key-bad {{ color: @error_color; }}
 
 /* == Smart Edit panel == */
 .gh-smart-bubble {{ padding: 8px 10px; border-radius: {rm}px; }}

@@ -442,6 +442,8 @@ class EditorWindow(Adw.ApplicationWindow):
         self.smart_btn = Gtk.ToggleButton(
             child=Adw.ButtonContent(icon_name="gh-smart-edit-symbolic", label=_("Smart Edit"))
         )
+        self.smart_btn.add_css_class("gh-smart")
+        self.smart_btn.set_valign(Gtk.Align.CENTER)
         self.smart_btn.set_tooltip_markup(
             tooltip(_("Smart Edit"), _("Describe an edit in plain words and Claude makes it"))
         )
@@ -549,8 +551,37 @@ class EditorWindow(Adw.ApplicationWindow):
             if section == "hide":
                 card.append(self._auto_redact_tile())
             column.append(card)
+        column.prepend(self._smart_edit_tile())
         self.rail_grid = column
         return column
+
+    def _smart_edit_tile(self) -> Gtk.Button:
+        """Smart Edit at the top of the tools too, where people look for what an editor can do."""
+        button = Gtk.Button()
+        button.add_css_class("gh-smart")
+        button.add_css_class("gh-smart-tile")
+        button.set_focus_on_click(False)
+        button.set_tooltip_markup(
+            tooltip(_("Smart Edit"), _("Describe an edit in plain words and Claude makes it"))
+        )
+        button.connect(
+            "clicked", lambda *_: self.show_smart_edit(not self.split.get_show_sidebar())
+        )
+        box = Gtk.Box(spacing=8)
+        icon = Gtk.Image.new_from_icon_name("gh-smart-edit-symbolic")
+        icon.set_pixel_size(20)
+        box.append(icon)
+        text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        title = Gtk.Label(label=_("Smart Edit"), xalign=0)
+        title.add_css_class("gh-feature-title")
+        sub = Gtk.Label(label=_("Just describe it"), xalign=0)
+        sub.add_css_class("gh-feature-sub")
+        text.append(title)
+        text.append(sub)
+        box.append(text)
+        button.set_child(box)
+        self.smart_tile = button
+        return button
 
     def _auto_redact_tile(self) -> Gtk.Button:
         button = Gtk.Button()
@@ -936,6 +967,7 @@ class EditorWindow(Adw.ApplicationWindow):
 
         offered = self.settings.get_boolean("smart-edit-enabled") and smart_edit_available()
         self.smart_btn.set_visible(offered)
+        self.smart_tile.set_visible(offered)
         if not offered and self.split.get_show_sidebar():
             self.show_smart_edit(False)
 

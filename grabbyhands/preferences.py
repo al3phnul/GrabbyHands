@@ -660,6 +660,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
             description=_("Kept in your keyring, never in a file or a log."),
         )
         self.key_status = Adw.ActionRow(title=_("Saved key"), subtitle=_("Checking…"))
+        self.key_badge: Gtk.Image | None = None
         self.key_test = Gtk.Button(label=_("Test"), valign=Gtk.Align.CENTER)
         self.key_test.set_tooltip_text(_("Check the key with Anthropic (free)"))
         self.key_test.connect("clicked", lambda *_: self._test_key())
@@ -807,10 +808,11 @@ class PreferencesDialog(Adw.PreferencesDialog):
             GLib.idle_add(done, ok)
 
         def done(ok: bool) -> bool:
-            self.add_toast(
-                Adw.Toast(title=_("Key saved") if ok else _("Couldn't save the key in the keyring"))
-            )
+            if not ok:
+                self._key_result(False, _("Couldn't save the key in your keyring."))
+                return GLib.SOURCE_REMOVE
             self._refresh_key()
+            self._test_key()  # a new key is checked straight away
             return GLib.SOURCE_REMOVE
 
         threading.Thread(target=work, daemon=True).start()
@@ -834,31 +836,60 @@ class PreferencesDialog(Adw.PreferencesDialog):
 
     def _test_key(self) -> None:
         self.key_test.set_sensitive(False)
+        self.key_test.set_label(_("Testing…"))
 
         def work() -> None:
             from grabbyhands.smartedit import secret
             from grabbyhands.smartedit.session import SmartEditError, _translate, make_client
 
-            message = _("The key works")
+            ok, message = True, ""
             try:
                 key = secret.lookup()
                 if not key:
                     raise SmartEditError("nokey")
                 make_client(key).models.list(limit=1)
             except SmartEditError:
-                message = _("No key is saved")
+                ok, message = False, _("No key is saved yet. Paste one first.")
             except Exception as err:  # noqa: BLE001
                 from grabbyhands.editor.smart_panel import error_text
 
-                message = error_text(_translate(err).kind)
-            GLib.idle_add(done, message)
+                ok, message = False, error_text(_translate(err).kind)
+            GLib.idle_add(done, ok, message)
 
-        def done(message: str) -> bool:
+        def done(ok: bool, message: str) -> bool:
             self.key_test.set_sensitive(True)
-            self.add_toast(Adw.Toast(title=message, use_markup=False))
+            self.key_test.set_label(_("Test"))
+            self._key_result(ok, message)
             return GLib.SOURCE_REMOVE
 
         threading.Thread(target=work, daemon=True).start()
+
+    def _key_result(self, ok: bool, message: str) -> None:
+        """The outcome of a key check: marked on the key row, and in a dialog that can't be
+        missed."""
+        if self.key_badge is not None:
+            self.key_status.remove(self.key_badge)
+        self.key_badge = Gtk.Image.new_from_icon_name(
+            "emblem-ok-symbolic" if ok else "dialog-error-symbolic"
+        )
+        self.key_badge.add_css_class("gh-key-ok" if ok else "gh-key-bad")
+        self.key_badge.set_tooltip_text(_("The key works") if ok else message)
+        self.key_status.add_prefix(self.key_badge)
+        if ok:
+            dialog = Adw.AlertDialog(
+                heading=_("Your Key Works"),
+                body=_(
+                    "Smart Edit is ready. Open a capture in the editor and click Smart Edit at "
+                    "the top left."
+                ),
+            )
+            dialog.add_response("ok", _("Great"))
+            dialog.set_response_appearance("ok", Adw.ResponseAppearance.SUGGESTED)
+        else:
+            dialog = Adw.AlertDialog(heading=_("The Key Didn't Work"), body=message)
+            dialog.add_response("ok", _("OK"))
+        dialog.set_default_response("ok")
+        dialog.present(self)
 
 
 def show(app: GrabbyHandsApp, parent: Gtk.Widget | None = None) -> PreferencesDialog:
