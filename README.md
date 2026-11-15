@@ -85,9 +85,10 @@ in **Settings → Smart Edit**.
   blacked out in the copy that is sent, unless you turn that off. Your key is kept in your
   keyring.
 
-Smart Edit is in the Flatpak, and in the `.deb` on Ubuntu 26.04 and newer. Ubuntu 24.04 and
-Debian 13 don't package Anthropic's Python library, so there the button stays hidden; use the
-Flatpak for Smart Edit.
+Smart Edit comes with the [Flatpak](#flatpak-any-distro). The `.deb` shows it only where
+Anthropic's Python library works: Ubuntu 24.04 and Debian 13 don't package it, and the
+package in Ubuntu 26.04 (`python3-anthropic` 0.79) can't load because a module it needs
+(`jiter`) isn't in Ubuntu. **Settings → Smart Edit** says which applies.
 
 ### Copy text and read QR codes
 
@@ -196,10 +197,12 @@ distro's own archive.
 - **Always installed:** `python3-gi`, `python3-gi-cairo`, `python3-cairo`, `python3-pil`,
   `gir1.2-gtk-4.0`, `gir1.2-adw-1`, `gir1.2-pango-1.0` and `xdg-desktop-portal`. A GNOME desktop
   already has nearly all of them.
-- **Recommended, installed by default:** `tesseract-ocr` (text recognition, with English),
-  `python3-zxing-cpp` (QR codes and barcodes), and `python3-anthropic` with `gir1.2-secret-1`
-  (Smart Edit; Ubuntu 26.04 and newer). Without them GrabbyHands still works; the Text,
-  Redact, QR Code and Smart Edit buttons are simply hidden.
+- **Recommended, installed by default:** `tesseract-ocr` (text recognition, with English) and
+  `python3-zxing-cpp` (QR codes and barcodes). Without them GrabbyHands still works; the Text,
+  Redact and QR Code buttons are simply hidden.
+- **Not installed by default:** Smart Edit needs Anthropic's Python library, which the
+  distros above don't ship in working order yet (see [Smart Edit](#smart-edit-optional)).
+  Use the Flatpak for Smart Edit.
 - **Included in the package:** the Window Helper extension. It stays off until you
   [turn it on](#4-turn-on-the-window-helper-for-window-capture).
 

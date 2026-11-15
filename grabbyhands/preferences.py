@@ -634,14 +634,23 @@ class PreferencesDialog(Adw.PreferencesDialog):
         intro.add(enabled)
         if not ready:
             enabled.set_sensitive(False)
-            missing = Adw.ActionRow(
-                title=_("Not available on this computer"),
-                subtitle=_(
+            problem = available.sdk_problem()
+            if problem in ("", "missing"):
+                why = _(
                     "Smart Edit needs Anthropic's Python library (package python3-anthropic) "
-                    "and the keyring library (gir1.2-secret-1). Install them, then restart "
-                    "GrabbyHands."
-                ),
-            )
+                    "and the keyring library (gir1.2-secret-1). The Flatpak has both."
+                )
+            elif problem == "too-old":
+                why = _(
+                    "Anthropic's Python library on this computer is too old for Smart Edit "
+                    "({version}). The Flatpak has a current one."
+                ).format(version=available.sdk_version())
+            else:
+                why = _(
+                    "Anthropic's Python library is installed but doesn't work: it can't load "
+                    "“{module}”. The Flatpak has a working one."
+                ).format(module=problem)
+            missing = Adw.ActionRow(title=_("Not available on this computer"), subtitle=why)
             missing.add_prefix(Gtk.Image.new_from_icon_name("dialog-warning-symbolic"))
             intro.add(missing)
         page.add(intro)

@@ -43,7 +43,7 @@ jobs:
             gir1.2-gtk-4.0 gir1.2-adw-1 python3-pil python3-pytest python3-zxing-cpp \
             tesseract-ocr tesseract-ocr-eng fonts-dejavu-core \
             meson ninja-build gettext desktop-file-utils appstream libglib2.0-bin \
-            libgtk-4-bin dbus-daemon python3-anthropic gir1.2-secret-1
+            libgtk-4-bin dbus-daemon gir1.2-secret-1
       - uses: actions/checkout@v7
       - name: Unit tests and the GUI smoke test
         run: python3 -m pytest -v
@@ -57,9 +57,9 @@ jobs:
           test -s po/grabbyhands.pot
 
   test-smart-edit-sdk:
-    # Smart Edit with the newest release of Anthropic's library (the Flatpak bundles it);
-    # the job above covers the older one Ubuntu 26.04 ships. Nothing here goes online
-    # except the package download: the tests talk to a local stand-in server.
+    # Smart Edit with Anthropic's library, the release the Flatpak bundles. (Ubuntu 26.04's
+    # python3-anthropic can't be imported: it lacks jiter.) Nothing here goes online except
+    # the package download: the tests talk to a local stand-in server.
     name: Smart Edit with the newest Anthropic library
     runs-on: ubuntu-latest
     container: ubuntu:26.04

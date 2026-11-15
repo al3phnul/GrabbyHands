@@ -33,12 +33,12 @@ Depends:
  ${misc:Depends},
  ${python3:Depends},
 Recommends:
- gir1.2-secret-1,
- python3-anthropic (>= 0.79),
  python3-zxing-cpp,
  tesseract-ocr,
  xdg-desktop-portal-gnome | xdg-desktop-portal-backend,
 Suggests:
+ gir1.2-secret-1,
+ python3-anthropic (>= 0.79),
  gnome-shell-extension-prefs,
 Description: Grab, mark up and copy screenshots on GNOME
  GrabbyHands is a screenshot tool for the GNOME desktop on Wayland. Press
@@ -61,10 +61,11 @@ Description: Grab, mark up and copy screenshots on GNOME
  Everything happens on your computer. GrabbyHands goes online only for
  Smart Edit, after you turn it on, add your own key and press Send.
  .
- Text recognition needs tesseract-ocr, QR reading needs python3-zxing-cpp,
- and Smart Edit needs python3-anthropic and gir1.2-secret-1. All are
- recommended and installed by default where the distribution has them.
- Without them those features are hidden and everything else works.
+ Text recognition needs tesseract-ocr and QR reading needs
+ python3-zxing-cpp; both are recommended and installed by default. Smart
+ Edit needs a working python3-anthropic and gir1.2-secret-1 (suggested, not
+ installed by default). Without them those features are hidden and
+ everything else works.
  .
  This package also installs the "GrabbyHands Window Helper" GNOME Shell
  extension, which tells GrabbyHands where windows are so it can capture a

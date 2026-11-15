@@ -22,17 +22,38 @@ def _version_tuple(text: str) -> tuple[int, ...]:
 
 
 @functools.cache
-def sdk_version() -> str | None:
+def _probe() -> tuple[str | None, str]:
+    """(version, problem). problem is "" when the library works, "missing" when it isn't
+    installed, or the name of what it couldn't load (Ubuntu 26.04's python3-anthropic
+    0.79 is installed without the jiter module it needs)."""
     try:
         import anthropic
-    except ImportError:
-        return None
-    return getattr(anthropic, "__version__", "0")
+    except ImportError as err:
+        missing = getattr(err, "name", None)
+        if missing in (None, "anthropic"):
+            return None, "missing"
+        return None, missing
+    except Exception as err:  # noqa: BLE001 (a broken install must not take the app down)
+        return None, type(err).__name__
+    return getattr(anthropic, "__version__", "0"), ""
+
+
+def sdk_version() -> str | None:
+    return _probe()[0]
+
+
+def sdk_problem() -> str:
+    """Why the library can't be used: "", "missing", "too-old", or a module it lacks."""
+    version, problem = _probe()
+    if problem:
+        return problem
+    if _version_tuple(version or "0") < MIN_SDK:
+        return "too-old"
+    return ""
 
 
 def sdk_ok() -> bool:
-    version = sdk_version()
-    return version is not None and _version_tuple(version) >= MIN_SDK
+    return sdk_problem() == ""
 
 
 def smart_edit_available() -> bool:

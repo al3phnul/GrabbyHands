@@ -366,3 +366,26 @@ def test_key_shape_check():
     assert secret.looks_like_key("sk-ant-api03-" + "a" * 40)
     assert not secret.looks_like_key("hello")
     assert not secret.looks_like_key("sk-ant-api03 with spaces " + "a" * 20)
+
+
+def test_a_broken_sdk_install_is_reported_not_raised(monkeypatch):
+    """Ubuntu 26.04's python3-anthropic can't load: it lacks the jiter module."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "anthropic":
+            err = ModuleNotFoundError("No module named 'jiter'")
+            err.name = "jiter"
+            raise err
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.delitem(sys.modules, "anthropic", raising=False)
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    available._probe.cache_clear()
+    try:
+        assert available.sdk_problem() == "jiter"
+        assert available.sdk_version() is None and not available.sdk_ok()
+    finally:
+        available._probe.cache_clear()

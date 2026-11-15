@@ -61,7 +61,7 @@ What the tests are:
 - `tests/test_smartedit_*.py`: Smart Edit without a key and without going online. The tools
   and the conversation loop run against a scripted fake API; `test_smartedit_sdk.py` runs
   Anthropic's real Python library against a local stand-in server (skipped when the library
-  isn't installed). CI runs them with the library Ubuntu 26.04 ships and with the newest one.
+  isn't installed). CI runs them with the release the Flatpak bundles.
   Trying Smart Edit for real needs your own API key and costs a little per message.
 
 CI runs all of this on Ubuntu 26.04 and on Ubuntu 24.04, the oldest platform GrabbyHands
