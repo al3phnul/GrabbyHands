@@ -361,3 +361,26 @@ def test_describe_uses_sent_pixels():
     assert (arrow["x0"], arrow["y1"]) == (10, 50)
     assert pen["drawn_by_hand"] is True and "points" not in pen
     assert out["crop"] == {"x0": 0, "y0": 0, "x1": 100, "y1": 50}
+
+
+def test_items_get_the_editor_style_unless_given():
+    doc = Document()
+    c = Context(
+        width=400, height=300, scale=0.5, style={"color": "#3b82f6", "width": 6, "size": 30}
+    )
+    call(
+        doc,
+        "add_annotations",
+        {
+            "items": [
+                {"type": "arrow", "x0": 1, "y0": 1, "x1": 50, "y1": 50},
+                {"type": "text", "x": 1, "y": 1, "text": "hi", "color": "#ff0000", "size": 10},
+                {"type": "redact", "x0": 1, "y0": 1, "x1": 50, "y1": 50, "mode": "blur"},
+            ]
+        },
+        c,
+    )
+    arrow, text, redact = doc.items
+    assert (arrow.color, arrow.width) == ("#3b82f6", 6)  # style is already in original pixels
+    assert (text.color, text.size) == ("#ff0000", 20)  # given: scaled from sent pixels
+    assert redact.mode == "blur"

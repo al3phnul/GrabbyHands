@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import shutil
+import threading
 from typing import TYPE_CHECKING
 
 from gi.repository import Adw, Gio, GLib, Gtk
@@ -112,6 +113,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
         self.add(self._general_page())
         self.add(self._saving_page())
         self.add(self._text_page())
+        self.add(self._smart_edit_page())
         unwatch = app.watch_shortcuts(self._refresh_shortcuts)
         when_closed(self, unwatch)
 
@@ -603,6 +605,251 @@ class PreferencesDialog(Adw.PreferencesDialog):
         codes.add(self.qr_row)
         page.add(codes)
         return page
+
+    # -- Smart Edit -----------------------------------------------------------------------
+    def _smart_edit_page(self) -> Adw.PreferencesPage:
+        from grabbyhands.editor.smart_panel import KEYS_URL, LIMITS_URL
+        from grabbyhands.smartedit import available, pricing
+        from grabbyhands.smartedit.budget import LEDGER_NAME, Budget
+        from grabbyhands.smartedit.session import MODELS
+
+        s = self.settings
+        page = Adw.PreferencesPage(
+            name="smart-edit", title=_("Smart Edit"), icon_name="gh-smart-edit-symbolic"
+        )
+        intro = Adw.PreferencesGroup(
+            description=_(
+                "Describe an edit in plain words, like “blur the email addresses” or “put an "
+                "arrow at the Save button”, and Claude makes it with the editor's own tools. "
+                "Smart Edit uses your own Anthropic API key and is charged to your Anthropic "
+                "account. GrabbyHands goes online only for Smart Edit, and only when you press "
+                "Send."
+            )
+        )
+        ready = available.smart_edit_available()
+        enabled = Adw.SwitchRow(
+            title=_("Use Smart Edit"), subtitle=_("Adds a Smart Edit button to the editor")
+        )
+        s.bind("smart-edit-enabled", enabled, "active", Gio.SettingsBindFlags.DEFAULT)
+        intro.add(enabled)
+        if not ready:
+            enabled.set_sensitive(False)
+            missing = Adw.ActionRow(
+                title=_("Not available on this computer"),
+                subtitle=_(
+                    "Smart Edit needs Anthropic's Python library (package python3-anthropic) "
+                    "and the keyring library (gir1.2-secret-1). Install them, then restart "
+                    "GrabbyHands."
+                ),
+            )
+            missing.add_prefix(Gtk.Image.new_from_icon_name("dialog-warning-symbolic"))
+            intro.add(missing)
+        page.add(intro)
+
+        key = Adw.PreferencesGroup(
+            title=_("API Key"),
+            description=_("Kept in your keyring, never in a file or a log."),
+        )
+        self.key_status = Adw.ActionRow(title=_("Saved key"), subtitle=_("Checking…"))
+        self.key_test = Gtk.Button(label=_("Test"), valign=Gtk.Align.CENTER)
+        self.key_test.set_tooltip_text(_("Check the key with Anthropic (free)"))
+        self.key_test.connect("clicked", lambda *_: self._test_key())
+        self.key_remove = Gtk.Button(icon_name="user-trash-symbolic", valign=Gtk.Align.CENTER)
+        self.key_remove.set_tooltip_text(_("Remove the key from this computer"))
+        self.key_remove.add_css_class("flat")
+        self.key_remove.connect("clicked", lambda *_: self._remove_key())
+        self.key_status.add_suffix(self.key_test)
+        self.key_status.add_suffix(self.key_remove)
+        key.add(self.key_status)
+        self.key_entry = Adw.PasswordEntryRow(title=_("Paste a key"), show_apply_button=True)
+        self.key_entry.connect("apply", lambda *_: self._save_key())
+        key.add(self.key_entry)
+        key.add(
+            _link_row(
+                _("Get an API key"),
+                _("Create one in the Anthropic Console"),
+                lambda: self.app._open_url(KEYS_URL),
+            )
+        )
+        key.set_sensitive(ready)
+        page.add(key)
+        if ready:
+            self._refresh_key()
+
+        claude = Adw.PreferencesGroup(title=_("Claude"))
+        choices = []
+        for model_id, label in MODELS:
+            price = pricing.PRICES[model_id]
+            choices.append((model_id, f"{label} · ${price.input:g} / ${price.output:g}"))
+        claude.add(
+            _combo(
+                _("Model"),
+                choices,
+                s.get_string("smart-edit-model"),
+                lambda v: s.set_string("smart-edit-model", v),
+                subtitle=_("Price per million tokens, input / output"),
+            )
+        )
+        claude.add(
+            _combo(
+                _("Effort"),
+                [
+                    ("low", _("Low: faster and cheaper")),
+                    ("medium", _("Medium")),
+                    ("high", _("High: more careful, costs more")),
+                ],
+                s.get_string("smart-edit-effort"),
+                lambda v: s.set_string("smart-edit-effort", v),
+            )
+        )
+        page.add(claude)
+
+        spending = Adw.PreferencesGroup(
+            title=_("Spending"),
+            description=_(
+                "Costs are estimates from Anthropic's prices of {date}. A message is only sent "
+                "when its highest possible cost fits under both limits. 0 means no limit. For "
+                "a hard cap, also set a limit in the Anthropic Console."
+            ).format(date=pricing.PRICES_AS_OF),
+        )
+        for key_name, title, top, step in (
+            ("smart-edit-chat-limit", _("Limit per chat (US$)"), 1000, 0.25),
+            ("smart-edit-month-limit", _("Limit per month (US$)"), 10000, 1),
+        ):
+            row = Adw.SpinRow.new_with_range(0, top, step)
+            row.set_title(title)
+            row.set_digits(2)
+            row.set_value(s.get_double(key_name))
+            row.connect("notify::value", lambda r, _p, k=key_name: s.set_double(k, r.get_value()))
+            spending.add(row)
+        month = Budget(config.data_dir() / LEDGER_NAME, 0, 0).month_spent()
+        spent = Adw.ActionRow(
+            title=_("Spent this month"), subtitle="≈ " + pricing.format_usd(month)
+        )
+        spent.add_css_class("property")
+        spending.add(spent)
+        spending.add(
+            _link_row(
+                _("Set a limit in the Anthropic Console"),
+                _("The limit Anthropic enforces, whatever an app does"),
+                lambda: self.app._open_url(LIMITS_URL),
+            )
+        )
+        page.add(spending)
+
+        privacy = Adw.PreferencesGroup(title=_("Privacy"))
+        hide = Adw.SwitchRow(
+            title=_("Hide personal details before sending"),
+            subtitle=_(
+                "Blacks out email addresses, phone numbers, card numbers, keys and similar that "
+                "text recognition finds, in the copy that is sent. Needs Tesseract."
+            ),
+        )
+        s.bind("smart-edit-hide-personal", hide, "active", Gio.SettingsBindFlags.DEFAULT)
+        privacy.add(hide)
+        sent = Adw.ActionRow(
+            title=_("What is sent"),
+            subtitle=_(
+                "The picture, your messages and the list of annotations, to Anthropic. Nothing "
+                "else from your computer."
+            ),
+        )
+        privacy.add(sent)
+        page.add(privacy)
+        return page
+
+    def _refresh_key(self) -> None:
+        def work() -> None:
+            from grabbyhands.smartedit import secret
+
+            key = secret.lookup()
+            GLib.idle_add(done, key)
+
+        def done(key: str | None) -> bool:
+            if key:
+                # Only the last four characters are ever shown.
+                self.key_status.set_subtitle(_("Ends in …{tail}").format(tail=key[-4:]))
+            else:
+                self.key_status.set_subtitle(_("None yet"))
+            self.key_test.set_sensitive(bool(key))
+            self.key_remove.set_sensitive(bool(key))
+            return GLib.SOURCE_REMOVE
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _save_key(self) -> None:
+        from grabbyhands.smartedit import secret
+
+        text = self.key_entry.get_text().strip()
+        if not secret.looks_like_key(text):
+            self.add_toast(
+                Adw.Toast(title=_("That doesn't look like an Anthropic API key (sk-ant-…)"))
+            )
+            return
+        self.key_entry.set_text("")
+
+        def work() -> None:
+            try:
+                secret.store(text)
+                ok = True
+            except Exception as err:  # noqa: BLE001
+                log.warning("could not store the API key: %s", type(err).__name__)
+                ok = False
+            GLib.idle_add(done, ok)
+
+        def done(ok: bool) -> bool:
+            self.add_toast(
+                Adw.Toast(title=_("Key saved") if ok else _("Couldn't save the key in the keyring"))
+            )
+            self._refresh_key()
+            return GLib.SOURCE_REMOVE
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _remove_key(self) -> None:
+        def work() -> None:
+            from grabbyhands.smartedit import secret
+
+            try:
+                secret.clear()
+            except Exception as err:  # noqa: BLE001
+                log.warning("could not remove the API key: %s", type(err).__name__)
+            GLib.idle_add(done)
+
+        def done() -> bool:
+            self.add_toast(Adw.Toast(title=_("Key removed")))
+            self._refresh_key()
+            return GLib.SOURCE_REMOVE
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _test_key(self) -> None:
+        self.key_test.set_sensitive(False)
+
+        def work() -> None:
+            from grabbyhands.smartedit import secret
+            from grabbyhands.smartedit.session import SmartEditError, _translate, make_client
+
+            message = _("The key works")
+            try:
+                key = secret.lookup()
+                if not key:
+                    raise SmartEditError("nokey")
+                make_client(key).models.list(limit=1)
+            except SmartEditError:
+                message = _("No key is saved")
+            except Exception as err:  # noqa: BLE001
+                from grabbyhands.editor.smart_panel import error_text
+
+                message = error_text(_translate(err).kind)
+            GLib.idle_add(done, message)
+
+        def done(message: str) -> bool:
+            self.key_test.set_sensitive(True)
+            self.add_toast(Adw.Toast(title=message, use_markup=False))
+            return GLib.SOURCE_REMOVE
+
+        threading.Thread(target=work, daemon=True).start()
 
 
 def show(app: GrabbyHandsApp, parent: Gtk.Widget | None = None) -> PreferencesDialog:

@@ -30,6 +30,15 @@ from grabbyhands.smartedit.tools import Context, apply_call, describe, tool_defi
 
 API_BASE = "https://api.anthropic.com"
 DEFAULT_MODEL = "claude-opus-5-5"
+# Models offered in Settings: only ones with a known price, so spending limits always work.
+MODELS = (
+    ("claude-opus-5-5", "Claude Opus 5.5"),
+    ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
+    ("claude-haiku-5-5", "Claude Haiku 5.5"),
+    ("claude-fable-5-2", "Claude Fable 5.2"),
+    ("claude-opus-5", "Claude Opus 5"),
+    ("claude-sonnet-5", "Claude Sonnet 5"),
+)
 EFFORTS = ("low", "medium", "high")
 MAX_TOKENS = 16000
 MAX_ROUNDS = 8
@@ -144,6 +153,7 @@ class Session:
     model: str = DEFAULT_MODEL
     effort: str = "medium"
     words: object = None  # () -> list[ocr.Word], or None without text recognition
+    style: dict = field(default_factory=dict)  # the editor's color/width/size, set per message
     strict: bool = True
     use_fallbacks: bool = True
     use_effort: bool = True
@@ -159,6 +169,7 @@ class Session:
             height=self.image.height,
             scale=self.image.scale,
             words=self.words,
+            style=dict(self.style),
         )
 
     def _user_turn(self, doc: Document, text: str) -> list[dict]:

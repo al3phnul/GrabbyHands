@@ -286,9 +286,15 @@ class EditorWindow(Adw.ApplicationWindow):
         self.canvas.on_tool_state = self._sync_options
 
         self.toasts = Adw.ToastOverlay()
+        self.smart_panel = None  # built the first time Smart Edit opens
+        self._editing_locked = False
         self._build_ui()
         self._install_actions()
         self.connect("close-request", self._on_close)
+        self._smart_handler = self.settings.connect(
+            "changed::smart-edit-enabled", lambda *_: self._sync_smart_button()
+        )
+        self._sync_smart_button()
         self.set_tool("arrow")
         self._sync_undo()
         # Keys belong to the picture from the start (tool letters, Space to pan, Enter to
@@ -387,6 +393,9 @@ class EditorWindow(Adw.ApplicationWindow):
         if self._finished:
             return
         self._finished = True
+        self.settings.disconnect(self._smart_handler)
+        if self.smart_panel is not None:
+            self.smart_panel.cancel.set()  # a request still running is dropped when it ends
         self.canvas.end_text_edit()
         if self._save_source is not None:
             GLib.source_remove(self._save_source)
@@ -429,6 +438,15 @@ class EditorWindow(Adw.ApplicationWindow):
         self.redo_btn.set_action_name("win.redo")
         header.pack_start(self.undo_btn)
         header.pack_start(self.redo_btn)
+
+        self.smart_btn = Gtk.ToggleButton(
+            child=Adw.ButtonContent(icon_name="gh-smart-edit-symbolic", label=_("Smart Edit"))
+        )
+        self.smart_btn.set_tooltip_markup(
+            tooltip(_("Smart Edit"), _("Describe an edit in plain words and Claude makes it"))
+        )
+        self.smart_btn.connect("toggled", lambda b: self.show_smart_edit(b.get_active()))
+        header.pack_start(self.smart_btn)
 
         copy = Gtk.Button(child=Adw.ButtonContent(icon_name="gh-copy-symbolic", label=_("Copy")))
         copy.set_tooltip_markup(tooltip(_("Copy"), _("Copy the finished image"), "Ctrl+C"))
@@ -480,7 +498,16 @@ class EditorWindow(Adw.ApplicationWindow):
         body.append(rail)
         body.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
         body.append(self.canvas)
-        self.toasts.set_child(body)
+        self.rail = rail
+        # Smart Edit opens at the right, next to the picture (not over it).
+        self.split = Adw.OverlaySplitView(
+            sidebar_position=Gtk.PackType.END,
+            show_sidebar=False,
+            min_sidebar_width=320,
+            max_sidebar_width=420,
+            content=body,
+        )
+        self.toasts.set_child(self.split)
 
         view = Adw.ToolbarView(content=self.toasts)
         view.add_top_bar(header)
@@ -900,6 +927,56 @@ class EditorWindow(Adw.ApplicationWindow):
     def _on_doc_changed(self) -> None:
         self._sync_undo()
         self._schedule_document_save()
+        if self.smart_panel is not None:
+            self.smart_panel.sync_undo()
+
+    # -- Smart Edit ---------------------------------------------------------------------
+    def _sync_smart_button(self) -> None:
+        from grabbyhands.smartedit.available import smart_edit_available
+
+        offered = self.settings.get_boolean("smart-edit-enabled") and smart_edit_available()
+        self.smart_btn.set_visible(offered)
+        if not offered and self.split.get_show_sidebar():
+            self.show_smart_edit(False)
+
+    def show_smart_edit(self, show: bool = True) -> None:
+        if show and self.smart_panel is None:
+            from grabbyhands.editor.smart_panel import SmartPanel
+
+            self.smart_panel = SmartPanel(self)
+            self.split.set_sidebar(self.smart_panel)
+        if self.smart_btn.get_active() != show:
+            self.smart_btn.set_active(show)  # comes back here through "toggled"
+            return
+        self.split.set_show_sidebar(show)
+        if show:
+            self.smart_panel.refresh()
+        else:
+            self.set_focus(self.canvas.area)
+
+    def set_editing_locked(self, locked: bool) -> None:
+        """No hand edits while Smart Edit works, so its result can't overwrite them."""
+        self._editing_locked = locked
+        if locked:
+            self.canvas.end_text_edit()
+        for widget in (self.rail, self.options, self.canvas):
+            widget.set_sensitive(not locked)
+        for name in ("undo", "redo", "erase-all", "auto-redact"):
+            action = self.lookup_action(name)
+            if action is not None:
+                action.set_enabled(not locked)
+        if not locked:
+            self._sync_undo()
+
+    def apply_smart_edit(self, doc: Document) -> int:
+        """Put Smart Edit's result on the picture as one undo step; returns that step's
+        undo serial (Undo This only works while it is still the latest change)."""
+        self.canvas.end_text_edit()
+        self.canvas.begin_change()
+        self.doc.replace_with(doc)
+        self.canvas.select(None)
+        self.canvas.changed()
+        return self.canvas.undo.serial
 
     def toast(self, text: str, timeout: int = 2) -> None:
         # Plain text: toasts read their title as markup by default, and a file name or an

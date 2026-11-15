@@ -166,6 +166,43 @@
       <summary>Last used blur/pixelate strength (percent)</summary>
     </key>
 
+    <!-- Smart Edit (off until turned on; the API key lives in the keyring, never here) -->
+    <key name="smart-edit-enabled" type="b">
+      <default>false</default>
+      <summary>Offer Smart Edit in the editor</summary>
+    </key>
+    <key name="smart-edit-consent" type="b">
+      <default>false</default>
+      <summary>The person agreed that Smart Edit sends the picture to Anthropic</summary>
+    </key>
+    <key name="smart-edit-model" type="s">
+      <default>'claude-opus-5-5'</default>
+      <summary>Claude model for Smart Edit</summary>
+    </key>
+    <key name="smart-edit-effort" type="s">
+      <choices>
+        <choice value="low"/>
+        <choice value="medium"/>
+        <choice value="high"/>
+      </choices>
+      <default>'medium'</default>
+      <summary>How much effort Claude puts into each Smart Edit request</summary>
+    </key>
+    <key name="smart-edit-chat-limit" type="d">
+      <range min="0" max="1000"/>
+      <default>0.5</default>
+      <summary>Most one Smart Edit chat may cost, in US dollars (0: no limit)</summary>
+    </key>
+    <key name="smart-edit-month-limit" type="d">
+      <range min="0" max="10000"/>
+      <default>5</default>
+      <summary>Most Smart Edit may cost in a calendar month, in US dollars (0: no limit)</summary>
+    </key>
+    <key name="smart-edit-hide-personal" type="b">
+      <default>true</default>
+      <summary>Black out personal details found on this computer before a picture is sent</summary>
+    </key>
+
     <!-- Window state -->
     <key name="history-width" type="i">
       <default>980</default>

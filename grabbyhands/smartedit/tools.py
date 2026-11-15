@@ -266,6 +266,8 @@ class Context:
     height: int
     scale: float = 1.0  # sent picture pixels per original pixel
     words: Callable[[], list] | None = None  # OCR words (grabbyhands.ocr.Word), lazily
+    # The editor's current style, in original pixels: what Claude's items get by default.
+    style: dict = field(default_factory=dict)  # color, width, size
     added: list[str] = field(default_factory=list)
     replaced: list[str] = field(default_factory=list)
     removed: int = 0
@@ -353,6 +355,10 @@ def _make_item(raw: object, ctx: Context, keep_id: str | None = None) -> tuple[I
     data, reason = _to_original(raw, ctx)
     if data is None:
         return None, reason or "invalid item"
+    allowed = ITEM_SCHEMAS[data["type"]]["properties"]
+    for name, value in ctx.style.items():
+        if name in allowed and name not in data:
+            data[name] = value
     text = data.get("text", "")
     if ctx.text_chars + len(text) > MAX_TEXT_PER_MESSAGE:
         return None, f"too much text in one request (limit {MAX_TEXT_PER_MESSAGE} characters)"

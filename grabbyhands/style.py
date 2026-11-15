@@ -338,6 +338,16 @@ button.gh-settings:active {{ background-color: alpha(currentColor, 0.13); }}
   margin: 0 4px 2px 4px;
 }}
 .gh-tile-label {{ font-size: {T_SMALL}; font-weight: 600; }}
+
+/* == Smart Edit panel == */
+.gh-smart-bubble {{ padding: 8px 10px; border-radius: {rm}px; }}
+.gh-smart-user {{ background-color: alpha(currentColor, 0.08); }}
+.gh-smart-reply {{
+  background-color: alpha(currentColor, 0.035);
+  border: 1px solid alpha(currentColor, 0.1);
+}}
+.gh-smart-error {{ background-color: alpha(@error_color, 0.14); }}
+.gh-smart-status {{ padding: 4px 2px; }}
 button.gh-tool {{
   min-width: 66px;
   min-height: 0;

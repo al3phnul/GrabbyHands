@@ -8,6 +8,7 @@ grabbyhands/application.py
 grabbyhands/capture.py
 grabbyhands/color_window.py
 grabbyhands/editor/canvas.py
+grabbyhands/editor/smart_panel.py
 grabbyhands/editor/window.py
 grabbyhands/export_dialog.py
 grabbyhands/history_window.py

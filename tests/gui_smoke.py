@@ -1389,6 +1389,199 @@ def fx_dialog_close_is_noticed(S) -> None:
         pump(0.2)
 
 
+def _fake_anthropic_module():
+    """Smart Edit's error handling imports the SDK; a stand-in when it isn't installed."""
+    mod = types.ModuleType("anthropic")
+
+    class APIError(Exception):
+        def __init__(self, message="", status_code=400):
+            super().__init__(message)
+            self.message, self.status_code = message, status_code
+
+    mod.APIError = APIError
+    mod.APIStatusError = type("APIStatusError", (APIError,), {})
+    mod.APIConnectionError = type("APIConnectionError", (APIError,), {})
+    for name in (
+        "BadRequestError",
+        "AuthenticationError",
+        "PermissionDeniedError",
+        "NotFoundError",
+        "RateLimitError",
+    ):
+        setattr(mod, name, type(name, (mod.APIStatusError,), {}))
+    return mod
+
+
+class _ScriptedMessages:
+    def __init__(self, script, gate=None):
+        self.script, self.gate, self.calls = list(script), gate, 0
+
+    def create(self, **_params):
+        self.calls += 1
+        if self.gate is not None:
+            self.gate.wait(20)
+        step = self.script.pop(0)
+        if isinstance(step, Exception):
+            raise step
+        return step
+
+    def count_tokens(self, **_params):
+        return {"input_tokens": 2000}
+
+
+def fx_smart_edit(S) -> None:
+    """Smart Edit: hidden until turned on, consent, key, a message as one undo step, Undo
+    This, errors, the editing lock, and closing the editor while a request runs."""
+    import threading
+
+    from grabbyhands.smartedit import available, secret
+    from grabbyhands.smartedit import session as sess
+
+    settings = S.app.settings
+    real = (available.smart_edit_available, secret.lookup, sess.make_client)
+    had_sdk = "anthropic" in sys.modules
+    if not had_sdk:
+        try:
+            import anthropic  # noqa: F401
+        except ImportError:
+            sys.modules["anthropic"] = _fake_anthropic_module()
+    errors = sys.modules["anthropic"]
+    clients = types.SimpleNamespace(append=lambda _c: None, panel=None)
+
+    def client(script, gate=None):
+        c = types.SimpleNamespace(messages=_ScriptedMessages(script, gate))
+        clients.append(c)
+        sess.make_client = lambda _key: c
+        open_panel = getattr(clients, "panel", None)
+        if open_panel is not None and open_panel.session is not None:
+            open_panel.session.client = c  # a running chat keeps its client
+        return c
+
+    def reply(content, stop):
+        return {
+            "model": "claude-opus-5-5",
+            "stop_reason": stop,
+            "content": content,
+            "usage": {"input_tokens": 2000, "output_tokens": 150},
+        }
+
+    arrow = {
+        "type": "tool_use",
+        "id": "t1",
+        "name": "add_annotations",
+        "input": {"items": [{"type": "arrow", "x0": 300, "y0": 300, "x1": 590, "y1": 150}]},
+    }
+    try:
+        settings.set_boolean("smart-edit-enabled", False)
+        settings.set_boolean("smart-edit-consent", False)
+        settings.set_boolean("smart-edit-hide-personal", False)
+        entry, win = open_editor(S)
+        assert not win.smart_btn.get_visible(), "Smart Edit must stay hidden until turned on"
+        available.smart_edit_available = lambda: True
+        settings.set_boolean("smart-edit-enabled", True)
+        pump(0.1)
+        assert win.smart_btn.get_visible()
+
+        # first use: consent, then a key, then the chat
+        secret.lookup = lambda: None
+        win.show_smart_edit(True)
+        pump(0.3)
+        panel = win.smart_panel
+        clients.panel = panel
+        assert win.split.get_show_sidebar() and win.smart_btn.get_active()
+        assert panel.stack.get_visible_child_name() == "consent"
+        panel._accept()
+        wait_for(lambda: panel.stack.get_visible_child_name() == "setup", what="setup page")
+        secret.lookup = lambda: "sk-ant-test-" + "x" * 40
+        panel.refresh()
+        wait_for(lambda: panel.stack.get_visible_child_name() == "chat", what="chat page")
+
+        # a message: drawn as one undo step, editing locked while it runs
+        gate = threading.Event()
+        client(
+            [
+                reply([arrow], "tool_use"),
+                reply([{"type": "text", "text": "Pointed at it."}], "end_turn"),
+            ],
+            gate,
+        )
+        depth = len(win.canvas.undo._undo)
+        panel.entry.set_text("point at the purple square")
+        panel.send()
+        pump(0.2)
+        assert panel.busy and not win.rail.get_sensitive() and not win.canvas.get_sensitive()
+        assert not win.lookup_action("undo").get_enabled()
+        gate.set()
+        wait_for(lambda: not panel.busy, what="Smart Edit reply")
+        assert win.rail.get_sensitive() and win.canvas.get_sensitive()
+        assert [i.type for i in win.doc.items] == ["arrow"]
+        assert len(win.canvas.undo._undo) == depth + 1
+        labels = " ".join(lb.get_label() for lb in _labels(panel.list))
+        assert "Pointed at it." in labels and "Added 1" in labels and "≈ $" in labels, labels
+        assert "This chat ≈ $0.0" in panel.total.get_text()
+        ((undo_btn, _serial),) = panel._undo_buttons
+        assert undo_btn.get_sensitive()
+        undo_btn.emit("clicked")
+        assert win.doc.items == [] and not undo_btn.get_sensitive()
+
+        # 'Undo This' only while the edit is the latest change
+        client([reply([arrow], "tool_use"), reply([], "end_turn")])
+        panel.entry.set_text("again")
+        panel.send()
+        wait_for(lambda: not panel.busy, what="second reply")
+        later_btn = panel._undo_buttons[-1][0]
+        assert later_btn.get_sensitive()
+        canvas_drag(win, 50, 50, 150, 120)  # a hand-drawn change after it
+        assert not later_btn.get_sensitive()
+
+        # errors are explained and change nothing
+        before = win._doc_json(win.doc)
+        client([errors.AuthenticationError("bad key")])
+        panel.entry.set_text("x")
+        panel.send()
+        wait_for(lambda: not panel.busy, what="error reply")
+        assert "didn't accept the API key" in " ".join(lb.get_label() for lb in _labels(panel.list))
+        assert win._doc_json(win.doc) == before
+
+        # a new chat forgets the conversation
+        panel.reset()
+        assert panel.session is None and panel._undo_buttons == []
+
+        # closing the editor while a request runs: nothing is applied, nothing breaks
+        gate = threading.Event()
+        client([reply([arrow], "tool_use"), reply([], "end_turn")], gate)
+        panel.entry.set_text("late")
+        panel.send()
+        pump(0.1)
+        win.close()
+        gate.set()
+        pump(0.6)
+        S.app.delete_capture(entry.id, trash_saved=False)
+
+        # Settings has the page, and the key row never shows more than four characters
+        from grabbyhands import preferences
+
+        dialog = preferences.show(S.app, None)
+        pump(0.4)
+        dialog.set_visible_page_name("smart-edit")
+        wait_for(lambda: "…" in (dialog.key_status.get_subtitle() or ""), what="key status")
+        assert dialog.key_status.get_subtitle().endswith("xxxx")
+        assert "sk-ant" not in dialog.key_status.get_subtitle()
+        dialog.close()
+        pump(0.3)
+    finally:
+        available.smart_edit_available, secret.lookup, sess.make_client = real
+        settings.reset("smart-edit-enabled")
+        settings.reset("smart-edit-consent")
+        settings.reset("smart-edit-hide-personal")
+        if (
+            not had_sdk
+            and isinstance(sys.modules.get("anthropic"), types.ModuleType)
+            and not hasattr(sys.modules["anthropic"], "__version__")
+        ):
+            del sys.modules["anthropic"]
+
+
 FUNCTIONALITY_STEPS = [
     ("setup: notifications are recorded, history folder is private", fx_setup),
     ("keys on Russian, Greek and Arabic keyboard layouts", fx_other_keyboard_layouts),
@@ -1402,6 +1595,7 @@ FUNCTIONALITY_STEPS = [
     ("capture: a click while a message shows", fx_click_while_a_message_shows),
     ("editor: callout click-away, tool key mid-drag", fx_editor_callout_and_drags),
     ("editor: undo steps and exact undo/redo", fx_editor_undo),
+    ("editor: Smart Edit (fake API)", fx_smart_edit),
     ("editor: typing (copy, undo, lines, empty, long)", fx_editor_typing),
     ("editor: closing, quitting, deleted meanwhile", fx_editor_closing),
     ("captures whose pictures or markup are gone", fx_missing_pictures),
