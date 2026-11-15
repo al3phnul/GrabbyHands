@@ -192,8 +192,15 @@ def check_manifest() -> None:
         problem("Flatpak sources not fetched over https: " + ", ".join(bad))
     if len(urls) != len(sums):
         problem(f"Flatpak manifest: {len(urls)} source URLs but {len(sums)} sha256 checksums")
-    if re.search(r"^\s*-\s*--share=network", text, re.M):
-        problem("Flatpak manifest asks for network access")
+    # Network access is for Smart Edit only, and only together with the comment saying so;
+    # everything else GrabbyHands does stays offline.
+    network = re.search(r"^\s*-\s*--share=network", text, re.M)
+    if network:
+        before = text[: network.start()].splitlines()[-3:]
+        if not any("Smart Edit only" in line for line in before):
+            problem("Flatpak manifest asks for network access without the Smart Edit comment")
+        if not (ROOT / "grabbyhands" / "smartedit").is_dir():
+            problem("Flatpak manifest asks for network access, but there is no Smart Edit")
     if not bad and len(urls) == len(sums):
         ok(f"Flatpak manifest: {len(urls)} sources, all https and pinned by sha256")
 

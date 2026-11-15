@@ -27,6 +27,13 @@ care about:
   than the one screenshot button the user asked it to
 - The Flatpak asking for more than it needs. Its permissions are listed, with reasons, in
   `build-aux/flatpak/io.github.al3phnul.GrabbyHands.yml`
+- Smart Edit going online when it shouldn't (before it is turned on and Send is pressed, or
+  anywhere but Anthropic's API), sending more than the picture, the message and the list of
+  annotations, or exposing the API key (it must stay in the keyring, out of files and logs)
+- Smart Edit doing anything beyond its editing tools. Claude's tool calls are checked in
+  `grabbyhands/smartedit/tools.py`, and nothing it sends is ever run as code. Text inside a
+  screenshot that tricks it into drawing something silly is a normal bug; anything more
+  (reading files, running commands, reaching the network) would be a vulnerability.
 
 Auto-Redact is a helper, not a guarantee: it can miss things, and GrabbyHands says so. A missed
 detection is a bug worth reporting as a normal issue (with made-up example data), not a

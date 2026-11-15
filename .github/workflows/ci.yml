@@ -43,7 +43,7 @@ jobs:
             gir1.2-gtk-4.0 gir1.2-adw-1 python3-pil python3-pytest python3-zxing-cpp \
             tesseract-ocr tesseract-ocr-eng fonts-dejavu-core \
             meson ninja-build gettext desktop-file-utils appstream libglib2.0-bin \
-            libgtk-4-bin dbus-daemon
+            libgtk-4-bin dbus-daemon python3-anthropic gir1.2-secret-1
       - uses: actions/checkout@v7
       - name: Unit tests and the GUI smoke test
         run: python3 -m pytest -v
@@ -55,6 +55,30 @@ jobs:
         run: |
           meson compile -C build grabbyhands-pot
           test -s po/grabbyhands.pot
+
+  test-smart-edit-sdk:
+    # Smart Edit with the newest release of Anthropic's library (the Flatpak bundles it);
+    # the job above covers the older one Ubuntu 26.04 ships. Nothing here goes online
+    # except the package download: the tests talk to a local stand-in server.
+    name: Smart Edit with the newest Anthropic library
+    runs-on: ubuntu-latest
+    container: ubuntu:26.04
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates python3 python3-venv python3-gi python3-gi-cairo python3-cairo \
+            gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-secret-1 python3-pil python3-pytest
+      - uses: actions/checkout@v7
+      - name: Smart Edit tests
+        run: |
+          python3 -m venv --system-site-packages /tmp/sdk
+          /tmp/sdk/bin/pip install --quiet "anthropic==2.8.0"
+          /tmp/sdk/bin/python -m pytest -v tests/test_smartedit_tools.py \
+            tests/test_smartedit_session.py tests/test_smartedit_sdk.py
 
   test-oldest:
     # The oldest platform GrabbyHands promises to run on:
@@ -159,7 +183,7 @@ jobs:
     # is; "always()" matters, because a job that is skipped would count as passed.
     name: All checks passed
     if: always()
-    needs: [lint, test, test-oldest, test-shell, test-source, packages]
+    needs: [lint, test, test-smart-edit-sdk, test-oldest, test-shell, test-source, packages]
     runs-on: ubuntu-latest
     steps:
       - name: Every job succeeded

@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+- Smart Edit (optional, off by default): describe an edit in plain words and Claude makes it
+  with the editor's own tools, using your own Anthropic API key. Each reply shows an estimated
+  cost and the chat keeps a total; limits per chat and per month stop a request before it is
+  sent. Personal details GrabbyHands finds are blacked out in the copy that is sent. The key is
+  kept in the keyring. Turn it on in Settings → Smart Edit.
+
+### Changed
+- GrabbyHands goes online only for Smart Edit, after you turn it on, add a key and press Send.
+  The Flatpak now has network permission for this.
+
 ## [0.1.1] - 2026-11-13
 
 ### Fixed

@@ -28,10 +28,11 @@
       <li>Identify Color shows the HEX, RGB and CMYK values of any pixel on screen</li>
       <li>Pin screenshots to the screen, and browse and re-edit your capture history</li>
       <li>Color schemes with light and dark styles</li>
+      <li>Optional Smart Edit: describe an edit in plain words and Claude makes it, using your own Anthropic API key</li>
     </ul>
     <p>
-      Everything happens on your computer. GrabbyHands has no network access and never uploads
-      anything.
+      Everything happens on your computer. GrabbyHands goes online only for Smart Edit, which is
+      off until you turn it on, add your own key and press Send.
     </p>
   </description>
 

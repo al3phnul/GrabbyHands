@@ -19,7 +19,8 @@ Press <kbd>Print Screen</kbd>, drag over what you want, and copy, save, edit or 
 
 GrabbyHands is a screenshot tool for the GNOME desktop on Wayland, in the spirit of the power
 tools people love on Windows. It is free software and runs entirely on your computer:
-**no network access, no uploads, no accounts**.
+**no uploads, no accounts, nothing online** unless you turn on the optional
+[Smart Edit](#smart-edit-optional).
 
 **Contents:** [What it does](#what-it-does) · [Install](#install) · [First run](#first-run) ·
 [Keyboard](#keyboard) · [Settings](#settings) · [Troubleshooting](#troubleshooting) ·
@@ -60,6 +61,33 @@ covers them in one step. You check the result before you share it.
 <p align="center">
   <img src="docs/screenshots/auto-redact.png" width="820" alt="Auto-Redact has covered an email address and a phone number">
 </p>
+
+### Smart Edit (optional)
+
+Describe an edit in plain words, like "blur the email addresses", "put an arrow at the Save
+button" or "number the three steps", and Claude makes it. It uses your own
+[Anthropic API key](https://console.anthropic.com/settings/keys) and is off until you turn it on
+in **Settings → Smart Edit**.
+
+- **It uses the editor's own tools.** Claude can add, change or remove arrows, boxes, text,
+  steps, blur and the rest, and crop. It can't run code, open files or go anywhere else, and
+  every change it proposes is checked the same way a saved document is. What it draws are
+  normal annotations: you can move or delete them, and each request is one step of
+  **Undo**.
+- **You see what it costs.** Every reply shows an estimate from Anthropic's published prices,
+  and the chat keeps a total. Limits per chat and per month stop a request before it is sent if
+  it could go over. Anthropic bills your account directly; for a hard cap, also set a limit in
+  the Anthropic Console.
+- **You choose the model and the effort.** Claude Opus 5.5 by default; Sonnet and Haiku are
+  cheaper.
+- **Privacy:** pressing **Send** sends the picture, your message and the list of annotations
+  to Anthropic. Personal details GrabbyHands finds (the same ones Auto-Redact finds) are
+  blacked out in the copy that is sent, unless you turn that off. Your key is kept in your
+  keyring.
+
+Smart Edit is in the Flatpak, and in the `.deb` on Ubuntu 26.04 and newer. Ubuntu 24.04 and
+Debian 13 don't package Anthropic's Python library, so there the button stays hidden; use the
+Flatpak for Smart Edit.
 
 ### Copy text and read QR codes
 
@@ -132,11 +160,13 @@ run `sudo apt install flatpak`).
 What comes along:
 
 - **Inside the app:** Pillow (images), Tesseract with English language data (text
-  recognition), Leptonica and zxing-cpp (QR codes). Nothing else is downloaded for these.
+  recognition), Leptonica and zxing-cpp (QR codes), and Anthropic's Python library (Smart
+  Edit). Nothing else is downloaded for these.
 - **From Flathub, once:** the GNOME 50 runtime (about 420 MB to download, shared with every
   other GNOME 50 Flatpak app). Flatpak offers to add Flathub for this if it isn't set up.
-- **Permissions:** showing windows, the graphics card, the folder `Pictures/GrabbyHands`, and
-  talking to the Window Helper. No network, no access to your other files.
+- **Permissions:** showing windows, the graphics card, the folder `Pictures/GrabbyHands`,
+  talking to the Window Helper, and the network for Smart Edit only (nothing goes online
+  unless you turn it on and press **Send**). No access to your other files.
 
 The Flatpak can't add anything to GNOME Shell, so window capture needs one more file. Download
 `grabbyhands@al3phnul.github.io.shell-extension.zip` from the same release and run:
@@ -166,9 +196,10 @@ distro's own archive.
 - **Always installed:** `python3-gi`, `python3-gi-cairo`, `python3-cairo`, `python3-pil`,
   `gir1.2-gtk-4.0`, `gir1.2-adw-1`, `gir1.2-pango-1.0` and `xdg-desktop-portal`. A GNOME desktop
   already has nearly all of them.
-- **Recommended, installed by default:** `tesseract-ocr` (text recognition, with English) and
-  `python3-zxing-cpp` (QR codes and barcodes). Without them GrabbyHands still works; the Text,
-  Redact and QR Code buttons are simply hidden.
+- **Recommended, installed by default:** `tesseract-ocr` (text recognition, with English),
+  `python3-zxing-cpp` (QR codes and barcodes), and `python3-anthropic` with `gir1.2-secret-1`
+  (Smart Edit; Ubuntu 26.04 and newer). Without them GrabbyHands still works; the Text,
+  Redact, QR Code and Smart Edit buttons are simply hidden.
 - **Included in the package:** the Window Helper extension. It stays off until you
   [turn it on](#4-turn-on-the-window-helper-for-window-capture).
 
@@ -355,6 +386,7 @@ Open **Settings** from the capture toolbar, the History window or the editor.
 | **General** | What <kbd>Enter</kbd> does, the magnifier, the delay, the color format, start at login, the shortcuts that work anywhere, the system menu's screenshot button, Window Helper status |
 | **Saving** | Save every capture or not, the folder, the file name pattern, PNG / JPEG / WebP and quality, how many captures History keeps |
 | **Text** | The language used for text recognition |
+| **Smart Edit** | Turn it on or off, your Anthropic API key (Test, Remove), the model and effort, limits per chat and per month, hiding personal details before sending |
 
 ## Troubleshooting
 
@@ -420,7 +452,13 @@ gone.
 
 ## Privacy
 
-- GrabbyHands never goes online. The Flatpak has no network permission at all.
+- GrabbyHands goes online only for Smart Edit: after you turn it on, add your own Anthropic
+  API key and press **Send**. It then sends the picture (with the personal details it finds
+  blacked out, unless you turn that off), your message and the list of annotations to
+  Anthropic's API, and nothing else. Anthropic's
+  [privacy policy](https://www.anthropic.com/legal/privacy) covers what happens there.
+- The Smart Edit key is kept in your keyring, never in a file or a log. The only thing
+  Smart Edit writes to disk is the month's estimated spending (one number per month).
 - Screenshots, recognized text and decoded QR codes stay on your computer and are never written
   to logs.
 - Captures are saved in `Pictures/GrabbyHands` (if **Save every capture** is on) and in the

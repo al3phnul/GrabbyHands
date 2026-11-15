@@ -58,6 +58,11 @@ What the tests are:
   system menu's screenshot button. It is skipped where `gnome-shell` isn't installed. To try
   it the way a distro sets GNOME up, with that distro's own extensions running too:
   `GRABBYHANDS_TEST_SHELL_ARGS=--mode=ubuntu python3 -m pytest tests/test_shell.py`.
+- `tests/test_smartedit_*.py`: Smart Edit without a key and without going online. The tools
+  and the conversation loop run against a scripted fake API; `test_smartedit_sdk.py` runs
+  Anthropic's real Python library against a local stand-in server (skipped when the library
+  isn't installed). CI runs them with the library Ubuntu 26.04 ships and with the newest one.
+  Trying Smart Edit for real needs your own API key and costs a little per message.
 
 CI runs all of this on Ubuntu 26.04 and on Ubuntu 24.04, the oldest platform GrabbyHands
 supports (GTK 4.14, libadwaita 1.5, Python 3.12). Before using a GTK, libadwaita or CSS
