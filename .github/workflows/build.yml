@@ -192,9 +192,16 @@ jobs:
       - name: What got installed, and its permissions
         run: |
           flatpak list --user --columns=application,version,branch,origin,size
-          flatpak info --user --show-permissions "$APP_ID"
-          if flatpak info --user --show-permissions "$APP_ID" | grep -q network; then
-            echo "::error::the Flatpak has network access"; exit 1
+          perms=$(flatpak info --user --show-permissions "$APP_ID")
+          echo "$perms"
+          # Exactly these, nothing more: network is for Smart Edit only (off until turned on);
+          # no home or host files, only the one Pictures folder.
+          echo "$perms" | grep -qx 'shared=network;ipc;' \
+            || { echo "::error::unexpected shared permissions"; exit 1; }
+          echo "$perms" | grep -qx 'filesystems=xdg-pictures/GrabbyHands:create;' \
+            || { echo "::error::unexpected file access"; exit 1; }
+          if echo "$perms" | grep -E '^filesystems=' | grep -q -E 'home|host'; then
+            echo "::error::the Flatpak can read home or host files"; exit 1
           fi
       - name: Run it
         run: |
