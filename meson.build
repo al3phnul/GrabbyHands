@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 al3phnul and contributors
 project(
   'grabbyhands',
-  version: '0.1.1',
+  version: '0.2.0',
   meson_version: '>= 1.1.0',
   license: 'GPL-3.0-or-later',
 )

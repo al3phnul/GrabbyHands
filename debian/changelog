@@ -1,3 +1,13 @@
+grabbyhands (0.2.0) unstable; urgency=medium
+
+  * New: Smart Edit (optional, off by default). Describe an edit in plain
+    words and Claude makes it with the editor's own tools, using your own
+    Anthropic API key, with cost estimates and spending limits.
+  * GrabbyHands goes online only for Smart Edit, after it is turned on.
+  * Suggests python3-anthropic and gir1.2-secret-1 for Smart Edit.
+
+ -- al3phnul <38234799+al3phnul@users.noreply.github.com>  Sun, 15 Nov 2026 12:00:00 +0000
+
 grabbyhands (0.1.1) unstable; urgency=medium
 
   * Pixelate and reading QR codes in small pictures work again on Ubuntu 26.04

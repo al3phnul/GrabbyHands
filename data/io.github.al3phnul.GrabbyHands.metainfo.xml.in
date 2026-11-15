@@ -106,6 +106,16 @@
   </keywords>
 
   <releases>
+    <release version="0.2.0" date="2026-11-15">
+      <description>
+        <p>
+          New: Smart Edit, off until you turn it on. Describe an edit in plain words and Claude
+          makes it with the editor's own tools, using your own Anthropic API key. Every reply
+          shows an estimated cost, and limits per chat and per month keep spending in check.
+          GrabbyHands goes online only for Smart Edit.
+        </p>
+      </description>
+    </release>
     <release version="0.1.1" date="2026-11-13">
       <url type="details">https://github.com/al3phnul/GrabbyHands/blob/main/CHANGELOG.md</url>
       <description>

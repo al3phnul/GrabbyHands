@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-15
+
 ### Added
 - Smart Edit (optional, off by default): describe an edit in plain words and Claude makes it
   with the editor's own tools, using your own Anthropic API key. Each reply shows an estimated
